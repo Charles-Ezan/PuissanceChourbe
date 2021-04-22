@@ -1,0 +1,53 @@
+body {
+    margin: 0;
+}
+
+:root {
+    --cell-size: 100px;
+    --mark-size: calc(var(--cell-size)*.9);
+}
+
+.board {
+    width: 100vw;
+    height: 50vw;
+    display: grid;
+    justify-content: center;
+    align-content: center;
+    grid-template-columns: repeat(7, auto);
+}
+
+.cell {
+    width: var(--cell-size);
+    height: var(--cell-size);
+    background-color: white;
+    border: 1px solid black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+
+.cell.red::before,
+.cell.red::after {
+    content: '';
+    position: absolute;
+    width: var(--mark-size);
+    height: var(--mark-size);
+    background-color: red;
+    border-radius: 50%;
+}
+
+.cell.yellow::before,
+.cell.yellow::after {
+    content: '';
+    position: absolute;
+    width: var(--mark-size);
+    height: var(--mark-size);
+    background-color: rgb(233, 199, 10);
+    border-radius: 50%;
+}
+
+.cell.red,
+.cell.yellow {
+    cursor: not-allowed;
+}
