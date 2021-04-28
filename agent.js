@@ -30,23 +30,27 @@ class LearningAgent extends Agent {
 
 class ExplorationAgent extends Agent {
 
-    compteur = 0
 
     Minimax_Decision(depth) {
-        column = this.Max_Value(this.beliefs, depth)
-        // console.log(column)
+        console.log(depth)
+        depth--
+        let column = this.Max_Value(this.beliefs, depth)
+        console.log(column)
         // return column
     }
 
     Max_Value(grid, depth) {
+        console.log("depth", depth)
 
-        if (depth == this.compteur) {
+        if (depth <= 0) {
             console.log("the end max")
-            this.compteur = 0
             return 0
         }
 
+        
+
         else {
+            console.log("aprés", depth)
         // console.log(this.compteur)
 
             var score = -1000
@@ -54,26 +58,23 @@ class ExplorationAgent extends Agent {
             // console.log("max", grid)
 
             for (let action = 0; action < grid.length; action++) {
-
                 // console.log(action)
-                if (action == (0 || 3)) {
-                    // console.log("tempGrid")
+
+
+                let tempGrid = this.Successors(this.NewGrid(grid), action)
+                if (action == (3)) {
+                    console.log("stack", tempGrid)
                 }
-
-                let tempGrid = this.Successors(grid, action)
-                // console.log("temp", tempGrid)
-                score = Math.max(score, this.Min_Value(tempGrid))
-
+                depth--
+                score = Math.max(score, this.Min_Value(tempGrid, depth))
             }
             return score
         }
     }
 
-    Min_Value(grid) {
+    Min_Value(grid, depth) {
 
-        if (this.depth == this.compteur) {
-            this.compteur = 0
-            console.log("the end min")
+        if (this.depth <= 0) {
             return 0
         }
 
@@ -85,10 +86,13 @@ class ExplorationAgent extends Agent {
 
             for (let action = 0; action < grid.length; action++) {
 
-                let tempGrid = this.Successors(grid, action)
-                score = Math.min(score, this.Max_Value(tempGrid))
+                let tempGrid = this.Successors(this.NewGrid(grid), action)
+                if (action == (3)) {
+                    console.log(tempGrid)
+                }
+                depth--
+                score = Math.min(score, this.Max_Value(tempGrid, depth))
             }
-
             return score
         }
     }
@@ -97,19 +101,34 @@ class ExplorationAgent extends Agent {
     Successors(grid, actionColumn) {
         // console.log("Successors()")
         // console.log(grid)
-        for (let index = 0; index < grid[actionColumn].length; index++) {
-            if (grid[actionColumn][index] == "nothing") {
-                grid[actionColumn][index] = this.color
-                return grid
+        let tempGrid = grid
+        for (let index = 0; index < tempGrid[actionColumn].length; index++) {
+            if (tempGrid[actionColumn][index] == "nothing") {
+                tempGrid[actionColumn][index] = this.color
+                // console.log(index)
+                return tempGrid
             }
             else { 
-                return grid
+                // console.log(index)
+                return tempGrid
             }
         }
     }
 
+    NewGrid(grid) {
+        let newGrid = []
+        for (let column = 0; column < grid.length; column++) {
+            let newColumn = []
+            for (let row = 0; row < grid[column].length; row++) {
+                newColumn.push(grid[column][row])
+            }
+            newGrid.push(newColumn)
+        }
+        return newGrid
+    }
+
     test() {
-        // console.log("test", this.beliefs)
+        console.log("test", this.beliefs)
         this.Minimax_Decision(2)
     }
 }
