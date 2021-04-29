@@ -87,7 +87,7 @@ h1 {
     width: 700px;
 }
 
-.reset {
+.start {
     background-color: #4370F1;
     border-radius: 5px;
     border: none;
@@ -100,11 +100,11 @@ h1 {
     text-transform: uppercase;
 }
 
-.reset:hover {
+.start:hover {
     background-color: #1D50F1;
 }
 
-.reset:active {
+.start:active {
     background-color: #4d7ef1;
 }
 
