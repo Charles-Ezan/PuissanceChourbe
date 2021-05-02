@@ -68,18 +68,6 @@ const getClassListArray = (cell) => {
   const classList = cell.classList;
   return [...classList];
 };
-// const getCellLocation = (cell) => {
-//   const classList = getClassListArray(cell);
-
-//   const rowClass = classList.find((className) => className.includes("row"));
-//   const colClass = classList.find((className) => className.includes("col"));
-//   const rowIndex = rowClass[4];
-//   const colIndex = colClass[4];
-//   const rowNumber = parseInt(rowIndex, 10);
-//   const colNumber = parseInt(colIndex, 10);
-
-//   return [rowNumber, colNumber];
-// };
 
 const getFirstOpenCellForColumn = (colIndex) => {
   const column = columns[colIndex];
