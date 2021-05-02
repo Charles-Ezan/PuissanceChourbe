@@ -30,89 +30,69 @@ class LearningAgent extends Agent {
 
 class ExplorationAgent extends Agent {
 
-
     Minimax_Decision(depth) {
-        console.log(depth)
         depth--
-        let column = this.Max_Value(this.beliefs, depth)
-        console.log(column)
-        // return column
+        let score = this.Max_Value(this.beliefs, depth).score
+        let columnAction = this.Max_Value(this.beliefs, depth).column
+        console.log("next action:", columnAction, "\nscore:", score)
+        return columnAction
     }
 
     Max_Value(grid, depth) {
-        console.log("depth", depth)
+        depth--
+        let column = 0
 
         if (depth <= 0) {
-            console.log("the end max")
-            return 0
+            return {score: this.Utility(grid, this.color)}
         }
-
-        
 
         else {
-            console.log("aprés", depth)
-        // console.log(this.compteur)
-
             var score = -1000
+            let grids = this.Successors(grid, this.color)
 
-            // console.log("max", grid)
-
-            for (let action = 0; action < grid.length; action++) {
-                // console.log(action)
-
-
-                let tempGrid = this.Successors(this.NewGrid(grid), action)
-                if (action == (3)) {
-                    console.log("stack", tempGrid)
+            grids.forEach((grid, index) => {
+                let previousScore = score
+                score = Math.max(score, this.Min_Value(grid, depth))
+                if (previousScore < score) {
+                    column = index
                 }
-                depth--
-                score = Math.max(score, this.Min_Value(tempGrid, depth))
-            }
-            return score
+            })
         }
+        return {score: score, column: column}
     }
 
     Min_Value(grid, depth) {
+        depth--
 
-        if (this.depth <= 0) {
-            return 0
+        if (depth <= 0) {
+            return this.Utility(grid, this.color)
         }
 
         else {
-
             var score = 1000
+            let grids = this.Successors(grid, this.OpponentColor(this.color))
 
-            // console.log("min", grid)
-
-            for (let action = 0; action < grid.length; action++) {
-
-                let tempGrid = this.Successors(this.NewGrid(grid), action)
-                if (action == (3)) {
-                    console.log(tempGrid)
-                }
-                depth--
-                score = Math.min(score, this.Max_Value(tempGrid, depth))
-            }
-            return score
+            grids.forEach(grid => {
+                score = Math.min(score, this.Max_Value(grid, depth).score)
+            })
         }
+        return score
     }
 
-    //Renvoi une grille avec un checker supplementaire sur la colonne precisee
-    Successors(grid, actionColumn) {
-        // console.log("Successors()")
-        // console.log(grid)
-        let tempGrid = grid
-        for (let index = 0; index < tempGrid[actionColumn].length; index++) {
-            if (tempGrid[actionColumn][index] == "nothing") {
-                tempGrid[actionColumn][index] = this.color
-                // console.log(index)
-                return tempGrid
+    //Renvoi les grilles possibles au prochain coup
+    Successors(grid, color) {
+        let grids = []
+        for (let column = 0; column < grid.length; column++) {            
+            let tempGrid = this.NewGrid(grid)
+            for (let index = 0; index < grid[column].length; index++) {
+                if (tempGrid[column][index] == "nothing") {
+                    tempGrid[column][index] = color
+                    index = grid[column][index]
+                }
             }
-            else { 
-                // console.log(index)
-                return tempGrid
-            }
-        }
+        grids.push(tempGrid)
+        }  
+        return grids
     }
 
     NewGrid(grid) {
@@ -127,9 +107,91 @@ class ExplorationAgent extends Agent {
         return newGrid
     }
 
+    //Calcul un score pour une grille
+    Utility(grid, color) {
+        let score = 0
+
+        //Checkers de l'agent sur la colonne du milieu
+        for (let checker = 0; checker < 6; checker++) {
+            if (grid[3][checker] == color) {
+                score = score + 4
+            }
+        }
+
+        //Recherche alignement de 2, 3 ou 4 checkers
+        for (let column = 0; column < grid.length; column++) {
+            for (let row = 0; row < grid[column].length; row++) {
+                
+                //Alignements horizontaux + droite vers le haut
+
+                //Alignement de 4
+                if (typeof grid[column + 3] !== 'undefined') {
+                    if (this.test_alignement(grid[column][row], grid[column+1][row], grid[column+2][row], grid[column+3][row])) {
+                        score = score + 1000
+                    }
+
+                    if (typeof grid[column + 3] !== 'undefined') {
+                        if (this.test_alignement(grid[column][row], grid[column+1][row+1], grid[column+2][row+2], grid[column+3][row+3])) {
+                            score = score + 1000
+                        } 
+                    }
+                }
+                
+                //Alignement de 3
+                else if(typeof grid[column + 2] !== 'undefined') {
+                    if (this.test_alignement(grid[column][row], grid[column+1][row], grid[column+2][row])) {
+                        score = score + 5
+                    }
+                }
+
+                //Alignements verticaux
+
+                //Alignement de 4
+                if (typeof grid[column][row+3] !== 'undefined') {
+                    if (this.test_alignement(grid[column][row], grid[column][row+1], grid[column][row+2], grid[column][row+3])) {
+                        score = score + 1000
+                    }
+                }
+
+                //Alignement de 3
+                else if(typeof grid[column + 2] !== 'undefined') {
+                    if (this.test_alignement(grid[column][row], grid[column][row+1], grid[column][row+2])) {
+                        score = score + 5
+                    }
+                }
+            }
+        }
+        return score
+    }
+
+    test_alignement(checker_a, checker_b, checker_c, checker_d){
+        if (arguments.length == 2) {
+            return((checker_a != "nothing") && (checker_a == checker_b));
+        }
+        else if (arguments.length == 3) {
+            return((checker_a != "nothing") && (checker_a == checker_b) && (checker_a == checker_c));
+        }
+        else if (arguments.length == 4) {
+            return((checker_a != "nothing") && (checker_a == checker_b) && (checker_a == checker_c) && (checker_a == checker_d));
+        }
+    }
+
+    OpponentColor(color) {
+        let opponentColor
+        if (color == "red") {
+            opponentColor = "yellow"
+        }
+        else {
+            opponentColor = "red"
+        }
+        return opponentColor
+    }
+
     test() {
-        console.log("test", this.beliefs)
-        this.Minimax_Decision(2)
+        let t0= performance.now(); //start time
+        this.Minimax_Decision(9)
+        let t1= performance.now(); //end time
+        console.log('Time taken to execute add function: '+ (t1-t0) +' milliseconds');
     }
 }
 
