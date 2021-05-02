@@ -1,58 +1,66 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <link rel="stylesheet" href="style.css">
-    <script src="script.js" defer></script>
+    <script src="script.js" type="module" defer></script>
+    <script src="environment.js" type="module" defer></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Puissance Chourbe</title>
 </head>
+
 <body>
- <input type="button" id="start" onclick="launch_game">
- <div class="board" id="board">
-    <div class="cell" data-cell></div>
-    <div class="cell" data-cell></div>
-    <div class="cell" data-cell></div>
-    <div class="cell" data-cell></div>
-    <div class="cell" data-cell></div>
-    <div class="cell" data-cell></div>
-    <div class="cell" data-cell></div>
-    <div class="cell" data-cell></div>
-    <div class="cell" data-cell></div>
-    <div class="cell" data-cell></div>
-    <div class="cell" data-cell></div>
-    <div class="cell" data-cell></div>
-    <div class="cell" data-cell></div>
-    <div class="cell" data-cell></div>
-    <div class="cell" data-cell></div>
-    <div class="cell" data-cell></div>
-    <div class="cell" data-cell></div>
-    <div class="cell" data-cell></div>
-    <div class="cell" data-cell></div>
-    <div class="cell" data-cell></div>
-    <div class="cell" data-cell></div>
-    <div class="cell" data-cell></div>
-    <div class="cell" data-cell></div>
-    <div class="cell" data-cell></div>
-    <div class="cell" data-cell></div>
-    <div class="cell" data-cell></div>
-    <div class="cell" data-cell></div>
-    <div class="cell" data-cell></div>
-    <div class="cell" data-cell></div>
-    <div class="cell" data-cell></div>
-    <div class="cell" data-cell></div>
-    <div class="cell" data-cell></div>
-    <div class="cell" data-cell></div>
-    <div class="cell" data-cell></div>
-    <div class="cell" data-cell></div>
-    <div class="cell" data-cell></div>
-    <div class="cell" data-cell></div>
-    <div class="cell" data-cell></div>
-    <div class="cell" data-cell></div>
-    <div class="cell" data-cell></div>
-    <div class="cell red" data-cell></div>
-    <div class="cell yellow" data-cell></div>
-</div>
-</body>
+    <!-- <input type="button" id="start" onclick="launch_game"> -->
+    <div class="game-board">
+        <div class="cell nothing row-0 col-0 left-border top-border"></div>
+        <div class="cell nothing row-0 col-1 top-border"></div>
+        <div class="cell nothing row-0 col-2 top-border"></div>
+        <div class="cell nothing row-0 col-3 top-border"></div>
+        <div class="cell nothing row-0 col-4 top-border"></div>
+        <div class="cell nothing row-0 col-5 top-border"></div>
+        <div class="cell nothing row-0 col-6 top-border right-border"></div>
+        <div class="cell nothing row-1 col-0 left-border"></div>
+        <div class="cell nothing row-1 col-1"></div>
+        <div class="cell nothing row-1 col-2"></div>
+        <div class="cell nothing row-1 col-3"></div>
+        <div class="cell nothing row-1 col-4"></div>
+        <div class="cell nothing row-1 col-5"></div>
+        <div class="cell nothing row-1 col-6 right-border"></div>
+        <div class="cell nothing row-2 col-0 left-border"></div>
+        <div class="cell nothing row-2 col-1"></div>
+        <div class="cell nothing row-2 col-2"></div>
+        <div class="cell nothing row-2 col-3"></div>
+        <div class="cell nothing row-2 col-4"></div>
+        <div class="cell nothing row-2 col-5"></div>
+        <div class="cell nothing row-2 col-6 right-border"></div>
+        <div class="cell nothing row-3 col-0 left-border"></div>
+        <div class="cell nothing row-3 col-1"></div>
+        <div class="cell nothing row-3 col-2"></div>
+        <div class="cell nothing row-3 col-3"></div>
+        <div class="cell nothing row-3 col-4"></div>
+        <div class="cell nothing row-3 col-5"></div>
+        <div class="cell nothing row-3 col-6 right-border"></div>
+        <div class="cell nothing row-4 col-0 left-border"></div>
+        <div class="cell nothing row-4 col-1"></div>
+        <div class="cell nothing row-4 col-2"></div>
+        <div class="cell nothing row-4 col-3"></div>
+        <div class="cell nothing row-4 col-4"></div>
+        <div class="cell nothing row-4 col-5"></div>
+        <div class="cell nothing row-4 col-6 right-border"></div>
+        <div class="cell nothing row-5 col-0 bottom-border left-border"></div>
+        <div class="cell nothing row-5 col-1 bottom-border"></div>
+        <div class="cell nothing row-5 col-2 bottom-border"></div>
+        <div class="cell nothing row-5 col-3 bottom-border"></div>
+        <div class="cell nothing row-5 col-4 bottom-border"></div>
+        <div class="cell nothing row-5 col-5 bottom-border"></div>
+        <div class="cell nothing row-5 col-6 bottom-border right-border"></div>
+    </div>
+
+    <div class="footer">
+        <button class="start" id="start">Lancer une partie</button>
+        <span class="status"></span>
+    </div </body>
+
 </html>
