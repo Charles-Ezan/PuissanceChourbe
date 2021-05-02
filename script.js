@@ -1,3 +1,5 @@
+import {Agent, LearningAgent, ExplorationAgent} from './agent.js';
+
 // DOM Elements
 const allCells = document.querySelectorAll(".cell");
 document.getElementById("start").onclick = launch_game;
@@ -261,6 +263,7 @@ class Environment {
     }
     // console.log("chercker_number : ", chercker_number);
   }
+
 }
 function resetBoard() {
   allCells.forEach((cell) => {
@@ -269,11 +272,16 @@ function resetBoard() {
     cell.classList.remove("red");
   });
 }
+
 function launch_game() {
   resetBoard();
+  console.log("NEW GAME")
   let game = new Environment();
 
   game.diplay_connect_4();
+
+  let miniMaxAgent1 = new ExplorationAgent("red")
+  let miniMaxAgent2 = new ExplorationAgent("yellow")
 
   let iteration_number = 0;
   let checker_added = false;
@@ -283,9 +291,20 @@ function launch_game() {
 
     console.log("iteration_number : ", iteration_number);
     // Une itération de jeu
-    while (checker_added == false) {
-      checker_added = game.add_checker(game.choose_random_column());
-      console.log("checker_added : ", checker_added);
+    if (game.player_turn == "red" ) {
+        while (checker_added == false) {
+            miniMaxAgent1.UpdateBeliefs(game.connect_4);
+            checker_added = game.add_checker(miniMaxAgent1.Minimax_Decision(3));
+            console.log("red?", miniMaxAgent1.color)
+        }
+    }
+
+    else {
+        while (checker_added == false ) {
+            miniMaxAgent2.UpdateBeliefs(game.connect_4);
+            checker_added = game.add_checker(miniMaxAgent2.Minimax_Decision(6));
+            console.log("yello?", miniMaxAgent2.color)
+        }
     }
     checker_added = false;
 
