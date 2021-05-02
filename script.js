@@ -157,6 +157,11 @@ class Environment {
     //     cell.classList.add('red')
     //     console.log('click' + cell)
     // }
+    
+    // Donne une récompense en cas de fin de partie à l'agent 
+    give_reward(){
+
+    }
 
     // Afficher le puissance 4
     diplay_connect_4(){
@@ -187,6 +192,7 @@ class Environment {
         console.log("iteration_number : ", iteration_number);
         // Une itération de jeu
         while(checker_added == false){
+            
             checker_added = game.add_checker(game.choose_random_column());
             console.log("checker_added : ", checker_added);
         }
