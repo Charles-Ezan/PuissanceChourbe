@@ -2,7 +2,7 @@
 
 //Placer un element dans la grille
 
-class Agent {
+export class Agent {
     constructor(color) {
         this.color = color
     }
@@ -24,17 +24,17 @@ class Agent {
 
 }
 
-class LearningAgent extends Agent {
+export class LearningAgent extends Agent {
 
 }
 
-class ExplorationAgent extends Agent {
+export class ExplorationAgent extends Agent {
 
     Minimax_Decision(depth) {
         depth--
         let score = this.Max_Value(this.beliefs, depth).score
         let columnAction = this.Max_Value(this.beliefs, depth).column
-        console.log("next action:", columnAction, "\nscore:", score)
+        console.log("next action from ", this.color, ": ", columnAction, "\nscore:", score)
         return columnAction
     }
 
@@ -52,9 +52,11 @@ class ExplorationAgent extends Agent {
 
             grids.forEach((grid, index) => {
                 let previousScore = score
-                score = Math.max(score, this.Min_Value(grid, depth))
-                if (previousScore < score) {
-                    column = index
+                if (grid[index][5] == "nothing") {
+                    score = Math.max(score, this.Min_Value(grid, depth))
+                    if (previousScore < score) {
+                        column = index
+                    }
                 }
             })
         }
@@ -107,11 +109,23 @@ class ExplorationAgent extends Agent {
         return newGrid
     }
 
+    UpdateBeliefs(grid){
+        let newGrid = []
+        this.beliefs = [];
+        for (let column = 0; column < grid.length; column++) {
+            let newColumn = []
+            for (let row = 0; row < grid[column].length; row++) {
+                newColumn.push(grid[column][row])
+            }
+            this.beliefs.push(newColumn)
+        }
+    }
+
     //Calcul un score pour une grille
     Utility(grid, color) {
         let score = 0
 
-        //Checkers de l'agent sur la colonne du milieu
+        // Checkers de l'agent sur la colonne du milieu
         for (let checker = 0; checker < 6; checker++) {
             if (grid[3][checker] == color) {
                 score = score + 4
@@ -124,39 +138,58 @@ class ExplorationAgent extends Agent {
                 
                 //Alignements horizontaux + droite vers le haut
 
-                //Alignement de 4
+                    //Alignement de 4
                 if (typeof grid[column + 3] !== 'undefined') {
-                    if (this.test_alignement(grid[column][row], grid[column+1][row], grid[column+2][row], grid[column+3][row])) {
+                    if (this.test_alignement(color, grid[column][row], grid[column+1][row], grid[column+2][row], grid[column+3][row])) {
                         score = score + 1000
                     }
 
-                    if (typeof grid[column + 3] !== 'undefined') {
-                        if (this.test_alignement(grid[column][row], grid[column+1][row+1], grid[column+2][row+2], grid[column+3][row+3])) {
+                    if (typeof grid[column][row + 3] !== 'undefined') {
+                        if (this.test_alignement(color, grid[column][row], grid[column+1][row+1], grid[column+2][row+2], grid[column+3][row+3])) {
                             score = score + 1000
                         } 
                     }
                 }
                 
-                //Alignement de 3
+                    //Alignement de 3
                 else if(typeof grid[column + 2] !== 'undefined') {
-                    if (this.test_alignement(grid[column][row], grid[column+1][row], grid[column+2][row])) {
+                    if (this.test_alignement(color, grid[column][row], grid[column+1][row], grid[column+2][row])) {
                         score = score + 5
                     }
                 }
 
                 //Alignements verticaux
 
-                //Alignement de 4
+                    //Alignement de 4
                 if (typeof grid[column][row+3] !== 'undefined') {
-                    if (this.test_alignement(grid[column][row], grid[column][row+1], grid[column][row+2], grid[column][row+3])) {
+                    if (this.test_alignement(color, grid[column][row], grid[column][row+1], grid[column][row+2], grid[column][row+3])) {
                         score = score + 1000
                     }
                 }
 
-                //Alignement de 3
+                    //Alignement de 3
                 else if(typeof grid[column + 2] !== 'undefined') {
-                    if (this.test_alignement(grid[column][row], grid[column][row+1], grid[column][row+2])) {
+                    if (this.test_alignement(color, grid[column][row], grid[column][row+1], grid[column][row+2])) {
                         score = score + 5
+                    }
+                }
+
+                //Alignement droite vers bas
+
+                    //Alignement de 4
+                if ((typeof grid[column-1] && typeof grid[column-2] && typeof grid[column-3]) !== 'undefined') {
+                    if (typeof grid[column][row + 3] !== 'undefined') {
+                        if (this.test_alignement(color, grid[column][row], grid[column-1][row+1], grid[column-2][row+2], grid[column-3][row+3])) {
+                            score = score + 1000
+                        }
+                    }
+                }
+                    //Alignements de 3
+                else if ((typeof grid[column-1] && typeof grid[column-2]) !== 'undefined') {
+                    if (typeof grid[column][row + 2] !== 'undefined') {
+                        if (this.test_alignement(color, grid[column][row], grid[column-1][row+1], grid[column-2][row+2])) {
+                            score = score + 5
+                        }
                     }
                 }
             }
@@ -164,15 +197,15 @@ class ExplorationAgent extends Agent {
         return score
     }
 
-    test_alignement(checker_a, checker_b, checker_c, checker_d){
+    test_alignement(color, checker_a, checker_b, checker_c, checker_d){
         if (arguments.length == 2) {
-            return((checker_a != "nothing") && (checker_a == checker_b));
+            return((checker_a == color) && (checker_a == checker_b));
         }
         else if (arguments.length == 3) {
-            return((checker_a != "nothing") && (checker_a == checker_b) && (checker_a == checker_c));
+            return((checker_a == color) && (checker_a == checker_b) && (checker_a == checker_c));
         }
         else if (arguments.length == 4) {
-            return((checker_a != "nothing") && (checker_a == checker_b) && (checker_a == checker_c) && (checker_a == checker_d));
+            return((checker_a == color) && (checker_a == checker_b) && (checker_a == checker_c) && (checker_a == checker_d));
         }
     }
 
@@ -187,13 +220,12 @@ class ExplorationAgent extends Agent {
         return opponentColor
     }
 
-    test() {
-        let t0= performance.now(); //start time
-        this.Minimax_Decision(9)
-        let t1= performance.now(); //end time
-        console.log('Time taken to execute add function: '+ (t1-t0) +' milliseconds');
-    }
+    // test() {
+    //     let t0= performance.now(); //start time
+    //     this.Minimax_Decision(9)
+    //     let t1= performance.now(); //end time
+    //     console.log('Time taken to execute add function: '+ (t1-t0) +' milliseconds');
+    // }
 }
 
-agent = new ExplorationAgent("red")
-agent.test()
+
