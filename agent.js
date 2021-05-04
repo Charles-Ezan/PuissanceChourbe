@@ -17,6 +17,16 @@ export class Agent {
         ["nothing","nothing","nothing","nothing","nothing","nothing"]
     ]
 
+    emptyGrid = [
+        ["nothing","nothing","nothing","nothing","nothing","nothing"],
+        ["nothing","nothing","nothing","nothing","nothing","nothing"],
+        ["nothing","nothing","nothing","nothing","nothing","nothing"],
+        ["nothing","nothing","nothing","nothing","nothing","nothing"],
+        ["nothing","nothing","nothing","nothing","nothing","nothing"],
+        ["nothing","nothing","nothing","nothing","nothing","nothing"],
+        ["nothing","nothing","nothing","nothing","nothing","nothing"]
+    ]
+
     // addCheckers(color, column) {
     //     this.beliefs[column].push(color)
     // }
@@ -52,10 +62,13 @@ export class ExplorationAgent extends Agent {
 
             grids.forEach((grid, index) => {
                 let previousScore = score
-                if (grid[index][5] == "nothing") {
-                    score = Math.max(score, this.Min_Value(grid, depth))
-                    if (previousScore < score) {
-                        column = index
+                //Suprime les colonnes completes
+                for (let c = 0; c < grid.length; c++) {
+                    if (grid[c][5] == "nothing") {
+                        score = Math.max(score, this.Min_Value(grid, depth))
+                        if (previousScore < score) {
+                            column = index
+                        }
                     }
                 }
             })
@@ -90,6 +103,9 @@ export class ExplorationAgent extends Agent {
                 if (tempGrid[column][index] == "nothing") {
                     tempGrid[column][index] = color
                     index = grid[column][index]
+                }
+                else {
+                    tempGrid = this.emptyGrid
                 }
             }
         grids.push(tempGrid)
