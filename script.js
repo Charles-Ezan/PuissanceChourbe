@@ -113,12 +113,14 @@ function launch_game() {
     // Une itération de jeu
     while (checker_added == false) {
       if (game.player_turn == "red") {
+        var col = miniMaxAgent1.Minimax_Decision(3);
         miniMaxAgent1.UpdateBeliefs(game.connect_4);
-        checker_added = game.add_checker(miniMaxAgent1.Minimax_Decision(3));
+        checker_added = game.add_checker(col, getFirstOpenCellForColumn(col));
         console.log("red?", miniMaxAgent1.color);
       } else {
+        var col = miniMaxAgent2.Minimax_Decision(6);
         miniMaxAgent2.UpdateBeliefs(game.connect_4);
-        checker_added = game.add_checker(miniMaxAgent2.Minimax_Decision(6));
+        checker_added = game.add_checker(col, getFirstOpenCellForColumn(col));
         console.log("yello?", miniMaxAgent2.color);
       }
     }
