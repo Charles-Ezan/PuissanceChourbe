@@ -2,7 +2,7 @@
 
 //Placer un element dans la grille
 
-class Agent {
+export class Agent {
     constructor(color) {
         this.color = color
     }
@@ -28,13 +28,43 @@ class Agent {
 
 }
 
-class LearningAgent extends Agent {
+export class LearningAgent extends Agent {
     
     // Matrix Q learning
     Q = {}
+
+
+    new_Q_2 = {}
+
+    // constructor(){
+    //     this.new_Q_2[grid_1] = {0: 1.0, 1: 2.0, 2: 3.0, 3: 4.0, 4: 5.0, 5: 6.0, 6:7.0}
+    //     this.new_Q_2[grid_2] = {0: 1.0, 1: 2.0, 2: 10.0, 3: 4.0, 4: 5.0, 5: 6.0, 6: 7.0}
+    //     this.new_Q_2[grid_3] = {0: 50.0, 1: 2.0, 2: 10.0, 3: 4.0, 4: 5.0, 5: 6.0, 6: 50.0}
+    // }
+    // Liste états - actions - Q_value
+    // new_Q_table = [
+    //     [connect_4_1,0, 0.0],
+    //     [connect_4_2,1, 1.0],
+    //     [connect_4_1,2, 0.0],
+    //     [connect_4_1,3, 0.0]
+    // ]
+
+    new_Q_table = []
+
     epsilon = 1.0;
-    learning_rate = 1.0 // AlPHA
-    discount_rate = 0.0 // GAMMA
+    learning_rate = 0.15 // AlPHA
+    discount_rate = 0.8 // GAMMA
+
+
+    old_beliefs = [
+        ["nothing","nothing","nothing","nothing","nothing","nothing"],
+        ["nothing","nothing","nothing","nothing","nothing","nothing"],
+        ["nothing","nothing","nothing","nothing","nothing","nothing"],
+        ["nothing","nothing","nothing","nothing","nothing","nothing"],
+        ["nothing","nothing","nothing","nothing","nothing","nothing"],
+        ["nothing","nothing","nothing","nothing","nothing","nothing"],
+        ["nothing","nothing","nothing","nothing","nothing","nothing"]
+    ]
 
     // Changement de plan utilisation d'un réseau de neurones
 
@@ -44,8 +74,18 @@ class LearningAgent extends Agent {
     //     lr = new_learning_rate;
     // }
 
+    // Mettre à jour espilon
+    Set_epsilon(new_epsilon){
+        this.epsilon = new_epsilon
+    }
+    
+    // Mettre à jour le learning rate
+    Set_learning_rate(new_learning_rate){
+        this.learning_rate = new_learning_rate
+    }
+
     // Retourne l'action qui a le plus de valeur parmi les actions possibles
-    max_action(a_state, possible_actions){
+    Max_action(a_state, possible_actions){
         let q_values = [];
         // Récupération des Q-values
         possible_actions.forEach(an_action => {
@@ -53,14 +93,15 @@ class LearningAgent extends Agent {
             q_values.push(this.Get_Q_value(a_state,an_action));
         });
 
-        console.log("q_values : ", q_values);
+        // console.log("q_values : ", q_values);
 
         let index = q_values.indexOf(Math.max.apply(null, q_values));
         return possible_actions[index];
     }
 
+
     // Retourne la liste des actions possibles par rapport à l'état
-    get_possible_actions(connect_4_state){
+    Get_possible_actions(connect_4_state){
         let possible_actions = [];
 
         for(let i=0 ; i<connect_4_state.length; i++){
@@ -71,81 +112,200 @@ class LearningAgent extends Agent {
         return possible_actions;
     }
 
-
     // Retourne une Q value en fonction du state et de l'action passé en paramètre
+    // Get_Q_value(a_state, an_action){
+    //     let q_value = 0;
+    //     if(this.Q[(a_state, an_action)] != undefined){
+    //         q_value = this.Q[(a_state, an_action)];
+    //     }
+    //     else{
+    //         this.Q[(a_state, an_action)] = 1.0;
+    //         q_value = 1.0;
+    //     }
+    //     return q_value;
+    // }
+
+    // NEW VERSION ------------------------------
+    // Get_Q_value(a_state, an_action){
+    //     // console.log("this.new_Q_table.length : ", this.new_Q_table);
+    //     // if(this.new_Q_table.length !=0){
+    //         for(let i=0 ; i<this.new_Q_table.length ; i++){
+    //             // console.log("index i : ", i)
+    //             if(this.Compare_lists(this.new_Q_table[i][0],a_state)){
+    //                 if(this.new_Q_table[1] == an_action){
+
+    //                     return this.new_Q_table[2];
+    //                 }
+    //             }
+    //         }
+    //     // }
+    //     // Création de la valeur dans la Q_table
+    //     this.new_Q_table.push([a_state,an_action,0.0]);
+    //     return 0.0;
+    // }
+
+    Get_index_Q(a_state, an_action){
+        let index_state_action = 0;
+        for(let i=0 ; i<this.new_Q_table.length ; i++){
+            if(this.Compare_lists(this.new_Q_table[i][0],a_state)){
+                if(this.new_Q_table[1] == an_action){
+                    index_state_action = i;
+                    return index_state_action;
+                }
+            }
+        }
+        return 0.0;
+    }
+    // NEW VERSION ------------------------------
+
+    // NEW VERSION 2 ------------------------------
+    getSafe(fn, defaultVal) {
+        try {
+          return fn();
+        } catch (e) {
+          return defaultVal;
+        }
+      }
+      
+
     Get_Q_value(a_state, an_action){
-        let q_value = 0;
-        if(this.Q[(a_state, an_action)] != undefined){
-            q_value = this.Q[(a_state, an_action)];
+
+        let the_state = JSON.stringify(a_state);
+
+        if(this.getSafe(() => this.new_Q_2[the_state][an_action])){
+            // console.log("Existe");
+            return this.new_Q_2[the_state][an_action];
         }
-        else{
-            this.Q[(a_state, an_action)] = 0.0;
-            q_value = 0.0;
+        else {
+            // Si l'état n'existe pas alors on l'ajoute à la table avec des valeurs de 1
+            // console.log("N'existe pas");
+            this.new_Q_2[the_state] = {0: 1.0, 1: 1.0, 2: 1.0, 3: 1.0, 4: 1.0, 5: 1.0, 6: 1.0}
         }
-        return q_value;
+        return this.new_Q_2[the_state][an_action];
+    }
+
+    Get_index_Q(a_state, an_action){
+        let index_state_action = 0;
+        for(let i=0 ; i<this.new_Q_table.length ; i++){
+            if(this.Compare_lists(this.new_Q_table[i][0],a_state)){
+                if(this.new_Q_table[1] == an_action){
+                    index_state_action = i;
+                    return index_state_action;
+                }
+            }
+        }
+        return 0.0;
+    }
+    // NEW VERSION 2 ------------------------------
+
+
+
+
+
+    // Mettre à jour les beliefs
+    Update_beliefs(a_connect_4){
+        // console.log("Update_beliefs");
+        // this.beliefs = [] 
+        for(let i=0 ; i<a_connect_4.length ; i++){
+            for(let j=0 ; j<a_connect_4[i].length ; j++ ){
+                this.beliefs[i][j] = a_connect_4[i][j];
+            }
+        }
+    }
+
+    // Sauvegarde des beliefs
+    Update_old_beliefs(){
+        // console.log("Update Old Beliefs");
+        // this.old_beliefs = [] 
+        for(let i=0 ; i<this.beliefs.length ; i++){
+            for(let j=0 ; j<this.beliefs[i].length ; j++ ){
+                this.old_beliefs[i][j] = this.beliefs[i][j];
+            }
+        }
     }
 
     // Mise à jour de la Q value en fonction de l'action déroulée
-    Update_Q_value(a_state, an_action, a_reward){
+    // Update_Q_value(an_action, a_reward){
+    //     // Actions disponibles dans cette nouvelle grille
+    //     let actions_after = this.Get_possible_actions(this.beliefs);
 
+    //     // Meilleur actions à ce nouvel état
+    //     let best_action_after = this.Max_action(this.beliefs, actions_after);
 
-        // MUTORERE
-        // # Equation de Bellman
-        // Q[observationInt, action] = Q[observationInt, action] + ALPHA * (reward + GAMMA * Q[observation_Int, action_] - Q[observationInt, action])
-        // observationInt = observation_Int
+    //     // Etat
+    //     let max_q_next = this.Get_Q_value(this.beliefs,best_action_after);
 
+    //     // Etat avant l'action
+    //     let q_before_action = this.Get_Q_value(this.old_beliefs,an_action);
 
-        // L'autre
-        // prev_state = board.get_prev_state()
-        // prev = self.getQ(prev_state, chosen_action)
-        // result_state = board.get_state()
-        // maxqnew = max([self.getQ(result_state, a) for a in actions])
-        // self.q[(prev_state, chosen_action)] = prev + self.alpha * ((reward + self.gamma*maxqnew) - prev)
+    //     let index_Q = this.Get_index_Q(this.old_beliefs,an_action);
+    //     // Equation de Bellman
+    //     // this.Q[(this.old_beliefs,an_action)] = q_before_action + this.learning_rate * (a_reward + this.discount_rate *max_q_next - q_before_action);
+    //     this.new_Q_table[index_Q][2] = q_before_action + this.learning_rate * (a_reward + this.discount_rate *max_q_next - q_before_action);
+    //     this.Update_old_beliefs();
+    // }
 
-        // Etat du puissance 4 après avoir joué
-        let state_after = this.beliefs;
-
+    // NEW VERSION 2222222222 ---------------------------
+    Update_Q_value(an_action, a_reward){
+        // console.log("Update Q-table");
         // Actions disponibles dans cette nouvelle grille
-        let actions_after = this.get_possible_actions(state_after);
+        let actions_after = this.Get_possible_actions(this.beliefs);
 
         // Meilleur actions à ce nouvel état
-        let best_action_after = this.max_action(state_after, actions_after);
+        let best_action_after = this.Max_action(this.beliefs, actions_after);
 
         // Etat
-        let max_q_next = this.Get_Q_value(state_after,best_action_after);
+        let max_q_next = this.Get_Q_value(this.beliefs,best_action_after);
 
         // Etat avant l'action
-        let q_before_action = this.Get_Q_value(a_state,an_action);
-        
-        console.log("max_q_next : ", max_q_next)
-        console.log("q_before_action : ", q_before_action)
+        let q_before_action = this.Get_Q_value(this.old_beliefs,an_action);
 
-        // Equation de Bellman
-        this.Q[(a_state,an_action)] = q_before_action + this.learning_rate * (a_reward + this.discount_rate *max_q_next - q_before_action);
+
+        // Doit retourner un état
+        // let index_Q = this.Get_index_Q(this.old_beliefs,an_action);
+
+        // Etat dans lequel on ai
+        let q_state = JSON.stringify(this.old_beliefs);
+        // Equation de Bellman 
+        // this.Q[(this.old_beliefs,an_action)] = q_before_action + this.learning_rate * (a_reward + this.discount_rate *max_q_next - q_before_action);
+        this.new_Q_2[q_state][an_action] = q_before_action + this.learning_rate * (a_reward + this.discount_rate *max_q_next - q_before_action);
+        this.Update_old_beliefs();
     }
+    // NEW VERSION 2222222222 ---------------------------
+
+    // Comparaison 2 deux grilles
+    Compare_lists(list_1, list_2){
+        if(JSON.stringify(list_1)==JSON.stringify(list_2)){
+            return true;
+        }
+        return false;
+    }
+    
+
+
 }
 
-class ExplorationAgent extends Agent {
+export class ExplorationAgent extends Agent {
 
 
     Minimax_Decision(depth) {
-        console.log(depth)
+        // console.log(depth)
         depth--
         let column = this.Max_Value(this.beliefs, depth)
-        console.log(column)
+        // console.log(column)
         // return column
     }
 
     Max_Value(grid, depth) {
-        console.log("MAX function", grid)
-        console.log("MAX depth", depth)
+        // console.log("MAX function", grid)
+        // console.log("MAX depth", depth)
 
         if (depth <= 0) {
-            console.log("the end max")
+            // console.log("the end max")
             return 0
         }
         else {
-            console.log("aprés", depth)
+            // console.log("aprés", depth)
         // console.log(this.compteur)
 
             var score = -1000
@@ -168,8 +328,8 @@ class ExplorationAgent extends Agent {
     }
 
     Min_Value(grid, depth) {
-        console.log("MIN function", grid)
-        console.log("MIN depth", depth)
+        // console.log("MIN function", grid)
+        // console.log("MIN depth", depth)
         if (this.depth <= 0) {
             return 0
         }
@@ -182,7 +342,7 @@ class ExplorationAgent extends Agent {
 
                 let tempGrid = this.Successors(this.NewGrid(grid), action)
                 if (action == (3)) {
-                    console.log(tempGrid)
+                    // console.log(tempGrid)
                 }
                 depth--
                 score = Math.min(score, this.Max_Value(tempGrid, depth))
@@ -222,55 +382,93 @@ class ExplorationAgent extends Agent {
     }
 
     test() {
-        console.log("test", this.beliefs)
+        // console.log("test", this.beliefs)
         this.Minimax_Decision(3)
     }
 }
 
-let agent = new LearningAgent("red");
-let connect_4_1 = [
-    ["nothing","nothing","nothing","nothing","nothing","nothing"],
-    ["nothing","nothing","nothing","nothing","nothing","nothing"],
-    ["nothing","nothing","nothing","nothing","nothing","nothing"],
-    ["nothing","nothing","nothing","nothing","nothing","nothing"],
-    ["nothing","nothing","nothing","nothing","nothing","red"],
-    ["nothing","nothing","nothing","nothing","nothing","nothing"],
-    ["nothing","nothing","nothing","nothing","nothing","nothing"]
-];
-let connect_4_2 = [
-    ["nothing","nothing","nothing","nothing","nothing","nothing"],
-    ["nothing","nothing","nothing","nothing","nothing","nothing"],
-    ["nothing","nothing","nothing","nothing","nothing","nothing"],
-    ["red","nothing","nothing","nothing","nothing","nothing"],
-    ["nothing","nothing","nothing","nothing","nothing","nothing"],
-    ["nothing","nothing","nothing","nothing","nothing","nothing"],
-    ["nothing","nothing","nothing","nothing","nothing","nothing"]
-];
-console.log("connect_4 : ", connect_4_1);
-let actions = agent.get_possible_actions(connect_4_1);
+// let agent = new LearningAgent("red");
+// let connect_4_1 = [
+//     ["red","nothing","nothing","nothing","nothing","nothing"],
+//     ["nothing","nothing","nothing","nothing","nothing","nothing"],
+//     ["nothing","nothing","nothing","nothing","nothing","nothing"],
+//     ["nothing","nothing","nothing","nothing","nothing","nothing"],
+//     ["nothing","nothing","nothing","nothing","nothing","red"],
+//     ["nothing","nothing","nothing","nothing","nothing","nothing"],
+//     ["nothing","nothing","nothing","nothing","nothing","nothing"]
+// ];
+// let connect_4_2 = [
+//     ["nothing","nothing","nothing","nothing","nothing","nothing"],
+//     ["nothing","nothing","nothing","nothing","nothing","nothing"],
+//     ["red","nothing","nothing","nothing","nothing","nothing"],
+//     ["red","nothing","nothing","nothing","nothing","nothing"],
+//     ["nothing","nothing","nothing","nothing","nothing","nothing"],
+//     ["nothing","nothing","nothing","nothing","nothing","nothing"],
+//     ["nothing","nothing","nothing","nothing","nothing","nothing"]
+// ];
+// let connect_4_3 = [
+//     ["nothing","nothing","nothing","nothing","nothing","nothing"],
+//     ["nothing","nothing","nothing","nothing","nothing","nothing"],
+//     ["red","nothing","nothing","nothing","nothing","nothing"],
+//     ["red","nothing","nothing","nothing","nothing","nothing"],
+//     ["nothing","nothing","nothing","nothing","nothing","nothing"],
+//     ["nothing","nothing","nothing","nothing","nothing","nothing"],
+//     ["red","red","nothing","nothing","red","nothing"]
+// ];
 
-console.log("agent.Q before loop : ", agent.Q);
+// let grid_1 = JSON.stringify(connect_4_1)
+// let grid_2 = JSON.stringify(connect_4_2)
+// let grid_3 = JSON.stringify(connect_4_3)
 
-agent.Q[(connect_4_1,0)] = 10.0;
-// console.log("test : ",agent.Get_Q_value(connect_4_1,0));
-// agent.get_q_value(connect_4_1,0);
+// let agent = new LearningAgent("red");
 
-let max_action_value = agent.max_action(connect_4_1,actions);
-console.log("max_action_value : ", max_action_value);
+// console.log("agent.Get_Q_value(grid_1,0) : ", agent.Get_Q_value(connect_4_3,6))
 
-console.log("before the update of Q : ", agent.Q)
-agent.Update_Q_value(connect_4_1,max_action_value,1000.0);
-console.log("after the update of Q : ", agent.Q)
+// console.log("a_Q_table : ", a_Q_table);
 
-// console.log("agent.max_action(connect_4_1,actions) : ", agent.max_action(connect_4_1,actions));
 
-// for(let i = 0 ; i<6 ;i++ ){
-//     agent.Q[0][i] = 5;
-// }
-// for(let i = 0 ; i<6 ;i++ ){
-//     agent.Q[connect_4_2][i] = i;
-// // }
-// agent.Q[0] = [0,1,2,3,4,5,6];
-// console.log("agent.Q after loop : ", agent.Q);
 
+
+
+// a_Q_table[grid_1] = {0: 1.0, 1: 2.0, 2: 3.0, 3: 4.0, 4: 5.0, 5: 6.0, 6:7.0}
+// a_Q_table[grid_2] = {0: 1.0, 1: 2.0, 2: 10.0, 3: 4.0, 4: 5.0, 5: 6.0, 6: 7.0}
+// a_Q_table[grid_3] = {0: 50.0, 1: 2.0, 2: 10.0, 3: 4.0, 4: 5.0, 5: 6.0, 6: 50.0}
+
+// console.log("a_Q_table : ", a_Q_table);
+// console.log("a_Q_table : ", a_Q_table[grid_1]);
+
+
+// console.log("a_Q_table : ",getSafe(() => a_Q_table["grid_2"][5]));
+
+
+
+// console.log("a_Q_table : ", agent.new_Q_2);
+
+  // use it like this
+
+
+//   function getSafe(fn, defaultVal) {
+//     try {
+//       return fn();
+//     } catch (e) {
+//       return defaultVal;
+//     }
+//   }
+
+//   console.log("test de l'an 2000")
+//   console.log("a_Q_table : ", a_Q_table);
+//   console.log("a_Q_table[grid_1][0] : ", a_Q_table[grid_1][5])
+
+//   console.log(getSafe(() => a_Q_table.a.lot.of.properties));
+
+//   function getSafe(fn, defaultVal) {
+//     try {
+//       return fn();
+//     } catch (e) {
+//       return defaultVal;
+//     }
+//   }
+  
+//   // use it like this
+//   console.log(" fefe : ", getSafe(() => a_Q_table[grid_1]));
 

@@ -1,3 +1,4 @@
+import { LearningAgent,ExplorationAgent, Agent } from "./agent.js";
 import Environment from "./environment.js";
 // const Environment = require("./environment");
 // DOM Elements
@@ -75,7 +76,7 @@ const getFirstOpenCellForColumn = (colIndex) => {
 
   for (const cell of columnWithoutTop) {
     const classList = getClassListArray(cell);
-    if (!classList.includes("yellow") && !classList.includes("red")) {
+    if (classList.includes("nothing")) {
       return cell;
     }
   }
@@ -91,42 +92,135 @@ function resetBoard() {
   });
 }
 function launch_game() {
-  resetBoard();
-  let game = new Environment();
+    resetBoard();
+    let game = new Environment();
 
-  game.diplay_connect_4();
+    let learning_agent_color = "red";
+    let learningAgent = new LearningAgent(learning_agent_color);
+    let learning_agent_reward = 0;
 
-  let iteration_number = 0;
-  let checker_added = false;
+    // game.diplay_connect_4();
 
-  while (game.finished == false) {
-    iteration_number++;
+    let iteration_number = 0;
+    let checker_added = false;
 
-    console.log("iteration_number : ", iteration_number);
-    // Une itération de jeu
-    while (checker_added == false) {
-      var col = game.choose_random_column();
-      var renderedCell = getFirstOpenCellForColumn(col);
-      checker_added = game.add_checker(col, renderedCell);
-      console.log("checker_added : ", checker_added);
+    var column;
+
+    var player_round = "yellow";
+
+    var number_victory_red = 0;
+    var number_victory_yellow = 0;
+    var number_without_victory = 0;
+    var total_games = 100000;
+    var victory_list = [];
+
+    console.log("beginning of the training");
+    for(let game_number = 0 ; game_number<total_games ;game_number++ ){
+        iteration_number = 0;
+        game.Reset_grid();
+
+        while (game.finished == false) {
+            iteration_number++;
+            // Random agent
+
+            while (player_round == "yellow"){
+                var col = game.choose_random_column();
+                var renderedCell_1 = getFirstOpenCellForColumn(col);
+                checker_added = game.add_checker(col,renderedCell_1,player_round);
+
+                // 0 -> jeton pas posé
+                // 1 -> jeton posé mais pas vainqueur
+                // 2 -> jeton posé avec vainqueur
+                // 3 -> jeton posé grille plein
+                if(checker_added != 0){
+                    player_round = "red";
+                }
+                // en cas de victoire
+                if(checker_added == 2){
+                    learning_agent_reward = -1000;
+                    number_victory_yellow++;
+                    victory_list.push("yellow");
+                }
+                else{
+                    learning_agent_reward = 0;
+                }
+            
+            }
+            checker_added = false;
+
+
+            // Learning agent
+            // while (checker_added == false) {
+            if(game.finished == false){
+                while (player_round == "red"){
+                    // ----------------------------------------------------------------------------------
+                    // learningAgent
+                    let random_value = Math.random()
+                    // Détermination de l'action en fonction d'epsilon
+                    column = (random_value < learningAgent.epsilon ) ? game.choose_random_column() : learningAgent.Max_action(Q, observationInt, possibleActions)
+                    // Mise à jour visuelle après avoir joué
+                    var renderedCell = getFirstOpenCellForColumn(column);
+                    // Renvoi une récompense le nouvel état du jeu et si 
+                    checker_added = game.add_checker(column, renderedCell,player_round);
+                    // ----------------------------------------------------------------------------------
+
+                    // Agent random 2 --------
+                    // 0 -> jeton pas posé
+                    // 1 -> jeton posé mais pas vainqueur
+                    // 2 -> jeton posé avec vainqueur
+                    // 3 -> jeton posé grille plein
+                    if(checker_added != 0){
+                        player_round = "yellow";
+
+                    }
+                    // en cas de victoire
+                    if(checker_added == 2){
+                        learning_agent_reward = 1000;
+                        number_victory_red++;
+                        victory_list.push("red");
+                    }
+                    else{
+                        learning_agent_reward = 0;
+                    }
+
+                    // Test du jeu
+                    // console.log("game.test_end_game() : ", game.test_end_game());
+                    // if(game.test_end_game() == "red"){
+                    //     learning_agent_reward = 1000;
+                    //     number_victory_red++;
+                    // }
+                    // else {
+                    //     learning_agent_reward = 0;
+                    // }
+                }
+            }
+            checker_added = false;
+
+            // ----------------------------------------------------------------------------------
+            // Update Beliefs
+            learningAgent.Update_beliefs(game.connect_4);
+
+            // Update Q table
+            learningAgent.Update_Q_value(column,learning_agent_reward);
+            // ----------------------------------------------------------------------------------
+        }
+
+        // Modification Epsilon
+        if(game_number >(total_games/1.3)){
+            game.epsilon = 0;
+        }
+        else{
+            game.epsilon = 1 - game_number/(total_games/1.3)
+        }
+
+        // console.log("game.epsilon -------- : ", game.epsilon);
+        // console.log("Q table length -------- : ", learningAgent.new_Q_table.length);
     }
-    checker_added = false;
-
-    // Test de fin de partie
-    game.test_end_game();
-    // console.log("iteration_number : ", iteration_number);
-
-    // Changement de joueur si la partie n'est pas finie
-    if (game.finished == false) {
-      if (game.player_turn == "red") {
-        game.player_turn = "yellow";
-      } else {
-        game.player_turn = "red";
-      }
-    }
-  }
-  console.log("finished");
-  console.log("Winner : ", game.victorious_player);
-  console.log("iteration_number : ", iteration_number);
-  console.log("connect_4 : ", game.connect_4);
+//   console.log("finished");
+//   console.log("Winner : ", game.victorious_player);
+//   console.log("iteration_number : ", iteration_number);
+//   console.log("connect_4 : ", game.connect_4);
+console.log("Q table : ", learningAgent.new_Q_2)
+console.log("number_victory_red : " , number_victory_red, " number_victory_yellow : ", number_victory_yellow);
+console.log("learning_rate : ", learningAgent.learning_rate, "discount_rate : ",learningAgent.discount_rate, "epsilon : ", learningAgent.epsilon )
 }

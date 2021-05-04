@@ -44,7 +44,7 @@ export default class Environment {
             this.connect_4[i + 3][j]
           )
         ) {
-          console.log("horizontal victory, row : ", j);
+          // console.log("horizontal victory, row : ", j);
           return true;
         }
       }
@@ -60,7 +60,7 @@ export default class Environment {
             this.connect_4[i][j + 3]
           )
         ) {
-          console.log("vertical victory, column : ", i);
+          // console.log("vertical victory, column : ", i);
           return true;
         }
       }
@@ -76,7 +76,7 @@ export default class Environment {
             this.connect_4[i + 3][j + 3]
           )
         ) {
-          console.log("diag gauche haut victory");
+          // console.log("diag gauche haut victory");
           return true;
         }
       }
@@ -92,7 +92,7 @@ export default class Environment {
             this.connect_4[i - 3][j + 3]
           )
         ) {
-          console.log("diag droite haut victory");
+          // console.log("diag droite haut victory");
           return true;
         }
       }
@@ -122,30 +122,37 @@ export default class Environment {
     if (this.test_victory()) {
       this.victorious_player = this.player_turn;
       this.finished = true;
-      console.log("FIN DE PARTIE - AVEC GAGNANT");
-      return true;
+      // console.log("FIN DE PARTIE - AVEC GAGNANT : ",this.player_turn);
+      // return this.player_turn;
+      return 2;
     }
     if (this.test_grid_complete()) {
       this.finished = true;
       this.victorious_player = "none";
-      console.log("FIN DE PARTIE - PAS DE GAGNANT");
-      return true;
+      // console.log("FIN DE PARTIE - PAS DE GAGNANT");
+      // return true;
+      return 3;
     }
-    return false;
+    return 1;
   }
 
   // Ajout d'un Checker dans une list
-  add_checker(column_number, displayedCell) {
+  // add_checker(column_number, displayedCell) {
+    add_checker(column_number, displayedCell, a_color) {
     for (var i = 0; i < 6; i++) {
       if (this.connect_4[column_number][i] == "nothing") {
-        this.connect_4[column_number][i] = this.player_turn;
-        displayedCell.classList.add(this.player_turn);
-        displayedCell.classList.remove("nothing");
+        this.connect_4[column_number][i] = a_color;
+        // displayedCell.classList.add(a_color);
+        // displayedCell.classList.remove("nothing");
         // break;
-        return true;
+
+        // Test de victoire
+        let result = this.test_end_game();
+        return result;
       }
     }
-    return false;
+    // return false;
+    return 0;
   }
 
   // Sélectionne aléatoirement une des 7 colonne
@@ -155,14 +162,41 @@ export default class Environment {
 
   // Afficher le puissance 4
   diplay_connect_4() {
-    console.log("display");
+    // console.log("display");
     let chercker_number = 0;
     for (let i = 0; i < 7; i++) {
       for (let j = 0; j < 6; j++) {
         chercker_number++;
-        console.log(this.connect_4[i][j]);
+        // console.log(this.connect_4[i][j]);
       }
     }
     // console.log("chercker_number : ", chercker_number);
   }
+
+  // Reset la grille
+  Reset_grid(){
+    // console.log("connect 4 in the reset before : ", this.connect_4);
+    // for(let i=0 ; i<this.connect_4.length ; i++){
+    //   for(let j=0 ; j<this.connect_4[i].length ; j++){
+    //     this.connect_4[i][j] = "nothing";
+    //     console.log("this.connect_4[i][j] : ", this.connect_4[i][j]);
+    //   }
+    // }
+
+    // this.connect_4 = [];
+    this.connect_4 = [
+      ["nothing", "nothing", "nothing", "nothing", "nothing", "nothing"],
+      ["nothing", "nothing", "nothing", "nothing", "nothing", "nothing"],
+      ["nothing", "nothing", "nothing", "nothing", "nothing", "nothing"],
+      ["nothing", "nothing", "nothing", "nothing", "nothing", "nothing"],
+      ["nothing", "nothing", "nothing", "nothing", "nothing", "nothing"],
+      ["nothing", "nothing", "nothing", "nothing", "nothing", "nothing"],
+      ["nothing", "nothing", "nothing", "nothing", "nothing", "nothing"],
+    ];
+
+    // console.log("connect 4 in the reset after : ", this.connect_4);
+    this.finished = false;
+    this.victorious_player = "none";
+  }
+
 }
