@@ -179,7 +179,7 @@ export class LearningAgent extends Agent {
         else {
             // Si l'état n'existe pas alors on l'ajoute à la table avec des valeurs de 1
             // console.log("N'existe pas");
-            this.new_Q_2[the_state] = {0: 1.0, 1: 1.0, 2: 1.0, 3: 1.0, 4: 1.0, 5: 1.0, 6: 1.0}
+            this.new_Q_2[the_state] = {0: 0.0, 1: 0.0, 2: 0.0, 3: 0.0, 4: 0.0, 5: 0.0, 6: 0.0}
         }
         return this.new_Q_2[the_state][an_action];
     }
@@ -280,9 +280,6 @@ export class LearningAgent extends Agent {
         }
         return false;
     }
-    
-
-
 }
 
 export class ExplorationAgent extends Agent {

@@ -111,7 +111,10 @@ function launch_game() {
     var number_victory_red = 0;
     var number_victory_yellow = 0;
     var number_without_victory = 0;
-    var total_games = 100000;
+
+    var yellow_win_after_train =0;
+    var red_win_after_train =0; 
+    var total_games = 1;
     var victory_list = [];
 
     console.log("beginning of the training");
@@ -119,10 +122,11 @@ function launch_game() {
         iteration_number = 0;
         game.Reset_grid();
 
+        console.log("START");
         while (game.finished == false) {
             iteration_number++;
             // Random agent
-
+            console.log("game after iterate : ", game.connect_4);
             while (player_round == "yellow"){
                 var col = game.choose_random_column();
                 var renderedCell_1 = getFirstOpenCellForColumn(col);
@@ -141,9 +145,9 @@ function launch_game() {
                     number_victory_yellow++;
                     victory_list.push("yellow");
                 }
-                else{
-                    learning_agent_reward = 0;
-                }
+                // else{
+                //     learning_agent_reward = 0;
+                // }
             
             }
             checker_added = false;
@@ -170,6 +174,8 @@ function launch_game() {
                     // 2 -> jeton posé avec vainqueur
                     // 3 -> jeton posé grille plein
                     if(checker_added != 0){
+                        learning_agent_reward = game.Evaluate_move(column);
+                        // console.log("reward : ", learning_agent_reward);
                         player_round = "yellow";
 
                     }
@@ -179,19 +185,6 @@ function launch_game() {
                         number_victory_red++;
                         victory_list.push("red");
                     }
-                    else{
-                        learning_agent_reward = 0;
-                    }
-
-                    // Test du jeu
-                    // console.log("game.test_end_game() : ", game.test_end_game());
-                    // if(game.test_end_game() == "red"){
-                    //     learning_agent_reward = 1000;
-                    //     number_victory_red++;
-                    // }
-                    // else {
-                    //     learning_agent_reward = 0;
-                    // }
                 }
             }
             checker_added = false;
@@ -208,19 +201,19 @@ function launch_game() {
         // Modification Epsilon
         if(game_number >(total_games/1.3)){
             game.epsilon = 0;
+            if(player_round == "red"){
+                yellow_win_after_train++;
+            }
+            else{
+                red_win_after_train++;
+            }
         }
         else{
             game.epsilon = 1 - game_number/(total_games/1.3)
         }
-
-        // console.log("game.epsilon -------- : ", game.epsilon);
-        // console.log("Q table length -------- : ", learningAgent.new_Q_table.length);
     }
-//   console.log("finished");
-//   console.log("Winner : ", game.victorious_player);
-//   console.log("iteration_number : ", iteration_number);
-//   console.log("connect_4 : ", game.connect_4);
 console.log("Q table : ", learningAgent.new_Q_2)
 console.log("number_victory_red : " , number_victory_red, " number_victory_yellow : ", number_victory_yellow);
 console.log("learning_rate : ", learningAgent.learning_rate, "discount_rate : ",learningAgent.discount_rate, "epsilon : ", learningAgent.epsilon )
+console.log("red_win_after_train : ", red_win_after_train, "yellow_win_after_train : ", yellow_win_after_train)
 }

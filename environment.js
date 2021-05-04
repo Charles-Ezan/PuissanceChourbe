@@ -160,30 +160,8 @@ export default class Environment {
     return Math.floor(Math.random() * 7);
   }
 
-  // Afficher le puissance 4
-  diplay_connect_4() {
-    // console.log("display");
-    let chercker_number = 0;
-    for (let i = 0; i < 7; i++) {
-      for (let j = 0; j < 6; j++) {
-        chercker_number++;
-        // console.log(this.connect_4[i][j]);
-      }
-    }
-    // console.log("chercker_number : ", chercker_number);
-  }
-
   // Reset la grille
   Reset_grid(){
-    // console.log("connect 4 in the reset before : ", this.connect_4);
-    // for(let i=0 ; i<this.connect_4.length ; i++){
-    //   for(let j=0 ; j<this.connect_4[i].length ; j++){
-    //     this.connect_4[i][j] = "nothing";
-    //     console.log("this.connect_4[i][j] : ", this.connect_4[i][j]);
-    //   }
-    // }
-
-    // this.connect_4 = [];
     this.connect_4 = [
       ["nothing", "nothing", "nothing", "nothing", "nothing", "nothing"],
       ["nothing", "nothing", "nothing", "nothing", "nothing", "nothing"],
@@ -193,10 +171,128 @@ export default class Environment {
       ["nothing", "nothing", "nothing", "nothing", "nothing", "nothing"],
       ["nothing", "nothing", "nothing", "nothing", "nothing", "nothing"],
     ];
-
-    // console.log("connect 4 in the reset after : ", this.connect_4);
     this.finished = false;
     this.victorious_player = "none";
   }
 
+  // Renvoie la ligne sur laquelle est le dernier pion en fonction de la colonne
+  Get_line_of_checker(column){
+    for (var i = 5; i > -1; i--) {
+      if (this.connect_4[column][i] != "nothing") {
+        return i;
+      }
+    }
+  }
+
+  // Test si 3 jetons sont alignés
+    // Test si l'ensemble de checkers passé en paramètre est de la même couleur
+    Test_3_checkers(checker_a, checker_b, checker_c) {
+      // Test si la première variable est un checker non-vide
+      return (
+        checker_a != "nothing" &&
+        checker_a == checker_b &&
+        checker_a == checker_c
+      );
+    }
+  
+
+  // Donne une récompense en fonction de l'action
+  Evaluate_move(a_column) {
+
+    console.log("this.connect_4 : ", this.connect_4)
+    console.log("jeton joué : ", a_column)
+
+    // La récompense a retourner
+    let reward = 0;
+    // récupération du dernier checker de la colonne
+    let a_row = this.Get_line_of_checker(a_column);
+
+    // Test en colonne
+    for(let i= a_row-2 ; i<a_row+1 ; i++){
+      if((i<0) || ((i+2)>5) || ((i+1)>5) ){
+        continue;
+      }
+      if(this.Test_3_checkers(this.connect_4[a_column][i],this.connect_4[a_column][i+1],this.connect_4[a_column][i+2])){
+        reward += 100;
+        console.log("3 checkers dans la colonne : ", a_column);
+      }
+    }
+
+    // Test en ligne 
+    for(let i= a_column-2 ; i<a_column+1 ; i++){
+
+      if((i<0) || ((i+2)>6) || ((i+1)>6) ){
+        continue;
+      }
+      if(this.Test_3_checkers(this.connect_4[i][a_row],this.connect_4[i+1][a_row],this.connect_4[i+2][a_row])){
+        reward += 100;
+        console.log("3 checkers dans la ligne : ", a_row);
+      }
+    }
+
+    // Test en diagonale gauche haut
+    for(let i=-2 ; i<1 ; i++){
+
+      // Test des colonnes
+      if((a_column+i<0) || (a_column+i+1<0) || (a_column+i+1>6) || (a_column+i+2>6) ){
+        continue;
+      }
+      // Test des lignes
+      if((a_row+i<0) || (a_row+i+1<0) || (a_row+i+1>5) || (a_row+i+2>5) ){
+        continue;
+      }
+
+      if(this.Test_3_checkers(this.connect_4[a_column+i][a_row+i],this.connect_4[a_column+i+1][a_row+i+1],this.connect_4[a_column+i+2][a_row+i+2])){
+        reward += 100;
+        console.log("3 checkers dans la diagonale -> column : ",a_column, " a_row : ", a_row);
+      }
+    }
+
+    // Test en diagonale droite haut
+    for(let i=-2 ; i<1 ; i++){
+      // Test des colonnes
+      if((a_column+i<0) || (a_column+i+1<0) || (a_column+i+1>6) || (a_column+i+2>6) ){
+        continue;
+      }
+      // Test des lignes
+      if((a_row-i>5) || (a_row-i-1>5) || (a_row-i-1<0) || (a_row-i-2<0) ){
+        continue;
+      }
+
+      if(this.Test_3_checkers(this.connect_4[a_column+i][a_row-i],this.connect_4[a_column+i+1][a_row-i-1],this.connect_4[a_column+i+2][a_row-i-2])){
+        reward += 100;
+        console.log("3 checkers dans la diagonale -> column : ",a_column, " a_row : ", a_row);
+      }
+    }
+
+    console.log("La récompense est de : ", reward);
+    return reward;
+  }
+
 }
+
+
+
+// let a_connect_4 = [
+//   ["red", "red", "red", "nothing", "nothing", "nothing"],
+//   ["nothing", "nothing", "nothing", "nothing", "nothing", "nothing"],
+//   ["nothing", "nothing", "nothing", "nothing", "nothing", "nothing"],
+//   ["nothing", "nothing", "nothing", "nothing", "nothing", "nothing"],
+//   ["yellow", "nothing", "nothing", "nothing", "nothing", "nothing"],
+//   ["yellow", "red", "nothing", "nothing", "red", "nothing"],
+//   ["yellow", "nothing", "nothing", "nothing", "nothing", "nothing"],
+// ];
+
+
+// function Get_line_of_checker(column,connect_4){
+//   console.log("connect_4[column] : ", connect_4[column])
+//   for (var i = 5; i > -1; i--) {
+//     console.log("i : ", i, "connect_4[column][i] : ", connect_4[column][i] )
+//     if (connect_4[column][i] != "nothing") {
+//       return i;
+//     }
+//   }
+// }
+
+
+// console.log("allo environment : ", Get_line_of_checker(5,a_connect_4))
