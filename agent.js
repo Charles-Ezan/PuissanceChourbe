@@ -32,7 +32,7 @@ export class Agent {
 
 export class LearningAgent extends Agent {
 
-
+    // Q_table
     Q_table = {}
 
     epsilon = 1.0;

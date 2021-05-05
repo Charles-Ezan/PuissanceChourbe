@@ -104,7 +104,7 @@ let learningAgent = new LearningAgent(learning_agent_color);
 
 var miniMaxAgent = new ExplorationAgent("yellow");
 
-var total_games = 500;
+var total_games = 50000;
 
 function launch_game() {
 
@@ -125,22 +125,22 @@ function launch_game() {
     iteration_number = 0;
     game.Reset_grid();
 
-    console.log("START");
+    // console.log("START");
     while (game.finished == false) {
         iteration_number++;
         // Random agent
         // console.log("game after iterate : ", game.connect_4);
         while (player_round == "yellow") {
-            // var col = game.Choose_random_column();
-            // var renderedCell_1 = getFirstOpenCellForColumn(col);
-            // checker_added = game.Add_checker_render(col, renderedCell_1, player_round);
-
-            let alpha = -10000000000
-            let beta = 10000000000
-            let minimaxresults = miniMaxAgent.Minimax(game.connect_4, 5, true, alpha, beta)
-            let col = minimaxresults.column
+            var col = game.Choose_random_column();
             var renderedCell_1 = getFirstOpenCellForColumn(col);
-            checker_added = game.Add_checker(col, renderedCell_1, player_round);
+            checker_added = game.Add_checker_render(col, renderedCell_1, player_round);
+
+            // let alpha = -10000000000
+            // let beta = 10000000000
+            // let minimaxresults = miniMaxAgent.Minimax(game.connect_4, 5, true, alpha, beta)
+            // let col = minimaxresults.column
+            // var renderedCell_1 = getFirstOpenCellForColumn(col);
+            // checker_added = game.Add_checker(col, renderedCell_1, player_round);
 
             // 0 -> jeton pas posé
             // 1 -> jeton posé mais pas vainqueur
@@ -181,7 +181,6 @@ function launch_game() {
                 // 3 -> jeton posé grille plein
                 if (checker_added != 0) {
                     learning_agent_reward = game.Evaluate_move(column);
-                    // console.log("reward : ", learning_agent_reward);
                     player_round = "yellow";
 
                 }
@@ -204,9 +203,6 @@ function launch_game() {
     }
     console.log("Q table : ", learningAgent.Q_table);
     console.log("Le vainqueur : ", victorious_player);
-    // console.log("number_victory_red : ", number_victory_red, " number_victory_yellow : ", number_victory_yellow);
-    // console.log("learning_rate : ", learningAgent.learning_rate, "discount_rate : ", learningAgent.discount_rate, "epsilon : ", learningAgent.epsilon)
-    // console.log("red_win_after_train : ", red_win_after_train, "yellow_win_after_train : ", yellow_win_after_train)
 }
 
 
@@ -226,7 +222,6 @@ function train_game() {
 
     var number_victory_red = 0;
     var number_victory_yellow = 0;
-    var number_without_victory = 0;
 
     var yellow_win_after_train = 0;
     var red_win_after_train = 0;
@@ -236,13 +231,12 @@ function train_game() {
         iteration_number = 0;
         game.Reset_grid();
 
-        console.log("START");
+        // console.log("START");
         while (game.finished == false) {
             iteration_number++;
             // Random agent
             // console.log("game after iterate : ", game.connect_4);
             while (player_round == "yellow") {
-
 
                 var col = game.Choose_random_column();
                 // var renderedCell_1 = getFirstOpenCellForColumn(col);
