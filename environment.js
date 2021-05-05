@@ -19,10 +19,9 @@ export default class Environment {
     ];
   }
 
-  // Test si l'ensemble de checkers passé en paramètre est de la même couleur
+  // Test si l'ensemble des checkers passés en paramètre sont de la même couleur
   test_line(checker_a, checker_b, checker_c, checker_d) {
     // Test si la première variable est un checker non-vide
-    // console.log(" A : " + checker_a + " B : " + checker_b + " C : " + checker_c + " D : " + checker_d);
     return (
       checker_a != "nothing" &&
       checker_a == checker_b &&
@@ -32,7 +31,7 @@ export default class Environment {
   }
 
   // Test si un des joueurs à remporté la victoire
-  test_victory() {
+  Test_victory() {
     // Test horizontal
     for (var i = 0; i < 4; i++) {
       for (var j = 0; j < 6; j++) {
@@ -101,7 +100,7 @@ export default class Environment {
   }
 
   // Test si la grille est complète
-  test_grid_complete() {
+  Test_grid_complete() {
     // console.log("test_grid_complete");
     var nothing_checker = false;
     this.connect_4.forEach((element) => {
@@ -118,15 +117,20 @@ export default class Environment {
   }
 
   // Test de fin de partie
-  test_end_game() {
-    if (this.test_victory()) {
+
+  // 1 -> jeton posé mais pas vainqueur
+  // 2 -> jeton posé avec vainqueur
+  // 3 -> jeton posé grille plein
+
+  Test_end_game() {
+    if (this.Test_victory()) {
       this.victorious_player = this.player_turn;
       this.finished = true;
       // console.log("FIN DE PARTIE - AVEC GAGNANT : ",this.player_turn);
       // return this.player_turn;
       return 2;
     }
-    if (this.test_grid_complete()) {
+    if (this.Test_grid_complete()) {
       this.finished = true;
       this.victorious_player = "none";
       // console.log("FIN DE PARTIE - PAS DE GAGNANT");
@@ -137,8 +141,10 @@ export default class Environment {
   }
 
   // Ajout d'un Checker dans une list
+
+  // 0 -> jeton pas posé
   // add_checker(column_number, displayedCell) {
-    add_checker(column_number, displayedCell, a_color) {
+    Add_checker(column_number, displayedCell, a_color) {
     for (var i = 0; i < 6; i++) {
       if (this.connect_4[column_number][i] == "nothing") {
         this.connect_4[column_number][i] = a_color;
@@ -147,16 +153,15 @@ export default class Environment {
         // break;
 
         // Test de victoire
-        let result = this.test_end_game();
+        let result = this.Test_end_game();
         return result;
       }
     }
-    // return false;
     return 0;
   }
 
   // Sélectionne aléatoirement une des 7 colonne
-  choose_random_column() {
+  Choose_random_column() {
     return Math.floor(Math.random() * 7);
   }
 
@@ -185,22 +190,22 @@ export default class Environment {
   }
 
   // Test si 3 jetons sont alignés
-    // Test si l'ensemble de checkers passé en paramètre est de la même couleur
-    Test_3_checkers(checker_a, checker_b, checker_c) {
-      // Test si la première variable est un checker non-vide
-      return (
-        checker_a != "nothing" &&
-        checker_a == checker_b &&
-        checker_a == checker_c
-      );
-    }
+  // Test si l'ensemble de checkers passé en paramètre est de la même couleur
+  Test_3_checkers(checker_a, checker_b, checker_c) {
+    // Test si la première variable est un checker non-vide
+    return (
+      checker_a != "nothing" &&
+      checker_a == checker_b &&
+      checker_a == checker_c
+    );
+  }
   
 
-  // Donne une récompense en fonction de l'action
+  // Renvoie une récompense en fonction de l'action (alignement de 3 jetons)
   Evaluate_move(a_column) {
 
-    console.log("this.connect_4 : ", this.connect_4)
-    console.log("jeton joué : ", a_column)
+    // console.log("this.connect_4 : ", this.connect_4)
+    // console.log("jeton joué : ", a_column)
 
     // La récompense a retourner
     let reward = 0;
@@ -214,7 +219,7 @@ export default class Environment {
       }
       if(this.Test_3_checkers(this.connect_4[a_column][i],this.connect_4[a_column][i+1],this.connect_4[a_column][i+2])){
         reward += 100;
-        console.log("3 checkers dans la colonne : ", a_column);
+        // console.log("3 checkers dans la colonne : ", a_column);
       }
     }
 
@@ -226,11 +231,10 @@ export default class Environment {
       }
       if(this.Test_3_checkers(this.connect_4[i][a_row],this.connect_4[i+1][a_row],this.connect_4[i+2][a_row])){
         reward += 100;
-        console.log("3 checkers dans la ligne : ", a_row);
+        // console.log("3 checkers dans la ligne : ", a_row);
       }
     }
-
-    // Test en diagonale gauche haut
+    // Test en diagonal gauche haut
     for(let i=-2 ; i<1 ; i++){
 
       // Test des colonnes
@@ -244,7 +248,7 @@ export default class Environment {
 
       if(this.Test_3_checkers(this.connect_4[a_column+i][a_row+i],this.connect_4[a_column+i+1][a_row+i+1],this.connect_4[a_column+i+2][a_row+i+2])){
         reward += 100;
-        console.log("3 checkers dans la diagonale -> column : ",a_column, " a_row : ", a_row);
+        // console.log("3 checkers dans la diagonale -> column : ",a_column, " a_row : ", a_row);
       }
     }
 
@@ -261,38 +265,11 @@ export default class Environment {
 
       if(this.Test_3_checkers(this.connect_4[a_column+i][a_row-i],this.connect_4[a_column+i+1][a_row-i-1],this.connect_4[a_column+i+2][a_row-i-2])){
         reward += 100;
-        console.log("3 checkers dans la diagonale -> column : ",a_column, " a_row : ", a_row);
+        // console.log("3 checkers dans la diagonale -> column : ",a_column, " a_row : ", a_row);
       }
     }
 
-    console.log("La récompense est de : ", reward);
+    // console.log("La récompense est de : ", reward);
     return reward;
   }
-
 }
-
-
-
-// let a_connect_4 = [
-//   ["red", "red", "red", "nothing", "nothing", "nothing"],
-//   ["nothing", "nothing", "nothing", "nothing", "nothing", "nothing"],
-//   ["nothing", "nothing", "nothing", "nothing", "nothing", "nothing"],
-//   ["nothing", "nothing", "nothing", "nothing", "nothing", "nothing"],
-//   ["yellow", "nothing", "nothing", "nothing", "nothing", "nothing"],
-//   ["yellow", "red", "nothing", "nothing", "red", "nothing"],
-//   ["yellow", "nothing", "nothing", "nothing", "nothing", "nothing"],
-// ];
-
-
-// function Get_line_of_checker(column,connect_4){
-//   console.log("connect_4[column] : ", connect_4[column])
-//   for (var i = 5; i > -1; i--) {
-//     console.log("i : ", i, "connect_4[column][i] : ", connect_4[column][i] )
-//     if (connect_4[column][i] != "nothing") {
-//       return i;
-//     }
-//   }
-// }
-
-
-// console.log("allo environment : ", Get_line_of_checker(5,a_connect_4))

@@ -1,4 +1,5 @@
 import { LearningAgent,ExplorationAgent, Agent } from "./agent.js";
+// import { Sensor } from "./sensor";
 import Environment from "./environment.js";
 // const Environment = require("./environment");
 // DOM Elements
@@ -72,9 +73,9 @@ const getClassListArray = (cell) => {
 
 const getFirstOpenCellForColumn = (colIndex) => {
   const column = columns[colIndex];
-  const columnWithoutTop = column.slice(0, 6);
+//   const columnWithoutTop = column.slice(0, 6);
 
-  for (const cell of columnWithoutTop) {
+  for (const cell of column) {
     const classList = getClassListArray(cell);
     if (classList.includes("nothing")) {
       return cell;
@@ -91,12 +92,19 @@ function resetBoard() {
     cell.classList.remove("red");
   });
 }
+
+// var agent_sensor = new Sensor();
+
+var game = new Environment();
+let learning_agent_color = "red";
+let learningAgent = new LearningAgent(learning_agent_color);
+
 function launch_game() {
     resetBoard();
-    let game = new Environment();
+    // let game = new Environment();
 
-    let learning_agent_color = "red";
-    let learningAgent = new LearningAgent(learning_agent_color);
+    // let learning_agent_color = "red";
+    // let learningAgent = new LearningAgent(learning_agent_color);
     let learning_agent_reward = 0;
 
     // game.diplay_connect_4();
@@ -114,7 +122,7 @@ function launch_game() {
 
     var yellow_win_after_train =0;
     var red_win_after_train =0; 
-    var total_games = 1;
+    var total_games = 100;
     var victory_list = [];
 
     console.log("beginning of the training");
@@ -126,11 +134,11 @@ function launch_game() {
         while (game.finished == false) {
             iteration_number++;
             // Random agent
-            console.log("game after iterate : ", game.connect_4);
+            // console.log("game after iterate : ", game.connect_4);
             while (player_round == "yellow"){
-                var col = game.choose_random_column();
+                var col = game.Choose_random_column();
                 var renderedCell_1 = getFirstOpenCellForColumn(col);
-                checker_added = game.add_checker(col,renderedCell_1,player_round);
+                checker_added = game.Add_checker(col,renderedCell_1,player_round);
 
                 // 0 -> jeton pas posé
                 // 1 -> jeton posé mais pas vainqueur
@@ -145,30 +153,24 @@ function launch_game() {
                     number_victory_yellow++;
                     victory_list.push("yellow");
                 }
-                // else{
-                //     learning_agent_reward = 0;
-                // }
             
             }
             checker_added = false;
 
 
             // Learning agent
-            // while (checker_added == false) {
             if(game.finished == false){
                 while (player_round == "red"){
                     // ----------------------------------------------------------------------------------
                     // learningAgent
                     let random_value = Math.random()
                     // Détermination de l'action en fonction d'epsilon
-                    column = (random_value < learningAgent.epsilon ) ? game.choose_random_column() : learningAgent.Max_action(Q, observationInt, possibleActions)
+                    column = (random_value < learningAgent.epsilon ) ? game.Choose_random_column() : learningAgent.Max_action(Q, observationInt, possibleActions)
                     // Mise à jour visuelle après avoir joué
                     var renderedCell = getFirstOpenCellForColumn(column);
                     // Renvoi une récompense le nouvel état du jeu et si 
-                    checker_added = game.add_checker(column, renderedCell,player_round);
-                    // ----------------------------------------------------------------------------------
+                    checker_added = game.Add_checker(column, renderedCell,player_round);
 
-                    // Agent random 2 --------
                     // 0 -> jeton pas posé
                     // 1 -> jeton posé mais pas vainqueur
                     // 2 -> jeton posé avec vainqueur
@@ -189,13 +191,11 @@ function launch_game() {
             }
             checker_added = false;
 
-            // ----------------------------------------------------------------------------------
             // Update Beliefs
             learningAgent.Update_beliefs(game.connect_4);
 
             // Update Q table
             learningAgent.Update_Q_value(column,learning_agent_reward);
-            // ----------------------------------------------------------------------------------
         }
 
         // Modification Epsilon
@@ -212,7 +212,7 @@ function launch_game() {
             game.epsilon = 1 - game_number/(total_games/1.3)
         }
     }
-console.log("Q table : ", learningAgent.new_Q_2)
+console.log("Q table : ", learningAgent.Q_table)
 console.log("number_victory_red : " , number_victory_red, " number_victory_yellow : ", number_victory_yellow);
 console.log("learning_rate : ", learningAgent.learning_rate, "discount_rate : ",learningAgent.discount_rate, "epsilon : ", learningAgent.epsilon )
 console.log("red_win_after_train : ", red_win_after_train, "yellow_win_after_train : ", yellow_win_after_train)
