@@ -1,4 +1,5 @@
 // import { Sensor } from "./sensor";
+import { LearningAgent, ExplorationAgent } from "./agent.js"
 import Environment from "./environment.js";
 // import "./environment.js";
 // const Environment = require("./environment");
@@ -101,6 +102,8 @@ var game = new Environment();
 let learning_agent_color = "red";
 let learningAgent = new LearningAgent(learning_agent_color);
 
+var miniMaxAgent = new ExplorationAgent("yellow");
+
 var total_games = 500;
 
 function launch_game() {
@@ -128,9 +131,16 @@ function launch_game() {
         // Random agent
         // console.log("game after iterate : ", game.connect_4);
         while (player_round == "yellow") {
-            var col = game.Choose_random_column();
+            // var col = game.Choose_random_column();
+            // var renderedCell_1 = getFirstOpenCellForColumn(col);
+            // checker_added = game.Add_checker_render(col, renderedCell_1, player_round);
+
+            let alpha = -10000000000
+            let beta = 10000000000
+            let minimaxresults = miniMaxAgent.Minimax(game.connect_4, 5, true, alpha, beta)
+            let col = minimaxresults.column
             var renderedCell_1 = getFirstOpenCellForColumn(col);
-            checker_added = game.Add_checker_render(col, renderedCell_1, player_round);
+            checker_added = game.Add_checker(col, renderedCell_1, player_round);
 
             // 0 -> jeton pas posé
             // 1 -> jeton posé mais pas vainqueur
@@ -220,7 +230,6 @@ function train_game() {
 
     var yellow_win_after_train = 0;
     var red_win_after_train = 0;
-    var victory_list = [];
 
     console.log("beginning of the training");
     for (let game_number = 0; game_number < total_games; game_number++) {
@@ -233,12 +242,18 @@ function train_game() {
             // Random agent
             // console.log("game after iterate : ", game.connect_4);
             while (player_round == "yellow") {
-                let alpha = -10000000000
-                let beta = 10000000000
-                let minimaxresults = miniMaxAgent.Minimax(game.connect_4, 5, false, alpha, beta)
-                let col = minimaxresults.column
-                var renderedCell_1 = getFirstOpenCellForColumn(col);
-                checker_added = game.Add_checker(col, renderedCell_1, player_round);
+
+
+                var col = game.Choose_random_column();
+                // var renderedCell_1 = getFirstOpenCellForColumn(col);
+                checker_added = game.Add_checker(col, player_round);
+
+                // let alpha = -10000000000
+                // let beta = 10000000000
+                // let minimaxresults = miniMaxAgent.Minimax(game.connect_4, 5, false, alpha, beta)
+                // let col = minimaxresults.column
+                // var renderedCell_1 = getFirstOpenCellForColumn(col);
+                // checker_added = game.Add_checker(col, renderedCell_1, player_round);
 
                 // 0 -> jeton pas posé
                 // 1 -> jeton posé mais pas vainqueur
