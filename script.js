@@ -109,8 +109,7 @@ function launch_game() {
     let learning_agent_reward = 0;
 
     // game.diplay_connect_4();
-  let miniMaxAgent1 = new ExplorationAgent("red");
-  let miniMaxAgent2 = new ExplorationAgent("yellow");
+  let miniMaxAgent = new ExplorationAgent("yellow");
 
     let iteration_number = 0;
     let checker_added = false;
@@ -125,7 +124,7 @@ function launch_game() {
 
     var yellow_win_after_train =0;
     var red_win_after_train =0; 
-    var total_games = 100;
+    var total_games = 5;
     var victory_list = [];
 
     console.log("beginning of the training");
@@ -139,7 +138,10 @@ function launch_game() {
             // Random agent
             // console.log("game after iterate : ", game.connect_4);
             while (player_round == "yellow"){
-                var col = game.Choose_random_column();
+                let alpha = -10000000000
+                let beta = 10000000000
+                let minimaxresults = miniMaxAgent.Minimax(game.connect_4, 5, false, alpha, beta)
+                let col = minimaxresults.column
                 var renderedCell_1 = getFirstOpenCellForColumn(col);
                 checker_added = game.Add_checker(col,renderedCell_1,player_round);
 
