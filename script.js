@@ -1,10 +1,8 @@
-<<<<<<< HEAD
+import { LearningAgent,ExplorationAgent, Agent } from "./agent.js";
+// import { Sensor } from "./sensor";
 import Environment from "./environment.js";
 // const Environment = require("./environment");
-=======
-import {Agent, LearningAgent, ExplorationAgent} from './agent.js';
 
->>>>>>> 1af5371043663127e9349337551d184e9e9767a1
 // DOM Elements
 const allCells = document.querySelectorAll(".cell");
 document.getElementById("start").onclick = launch_game;
@@ -76,11 +74,11 @@ const getClassListArray = (cell) => {
 
 const getFirstOpenCellForColumn = (colIndex) => {
   const column = columns[colIndex];
-  const columnWithoutTop = column.slice(0, 6);
+//   const columnWithoutTop = column.slice(0, 6);
 
-  for (const cell of columnWithoutTop) {
+  for (const cell of column) {
     const classList = getClassListArray(cell);
-    if (!classList.includes("yellow") && !classList.includes("red")) {
+    if (classList.includes("nothing")) {
       return cell;
     }
   }
@@ -88,179 +86,6 @@ const getFirstOpenCellForColumn = (colIndex) => {
   return null;
 };
 
-<<<<<<< HEAD
-=======
-class Environment {
-  connect_4 = [];
-
-  player_turn = "red";
-
-  victorious_player = "none";
-
-  finished = false;
-
-  constructor() {
-    this.connect_4 = [
-      ["nothing", "nothing", "nothing", "nothing", "nothing", "nothing"],
-      ["nothing", "nothing", "nothing", "nothing", "nothing", "nothing"],
-      ["nothing", "nothing", "nothing", "nothing", "nothing", "nothing"],
-      ["nothing", "nothing", "nothing", "nothing", "nothing", "nothing"],
-      ["nothing", "nothing", "nothing", "nothing", "nothing", "nothing"],
-      ["nothing", "nothing", "nothing", "nothing", "nothing", "nothing"],
-      ["nothing", "nothing", "nothing", "nothing", "nothing", "nothing"],
-    ];
-  }
-
-  // Test si l'ensemble de checkers passé en paramètre est de la même couleur
-  test_line(checker_a, checker_b, checker_c, checker_d) {
-    // Test si la première variable est un checker non-vide
-    // console.log(" A : " + checker_a + " B : " + checker_b + " C : " + checker_c + " D : " + checker_d);
-    return (
-      checker_a != "nothing" &&
-      checker_a == checker_b &&
-      checker_a == checker_c &&
-      checker_a == checker_d
-    );
-  }
-
-  // Test si un des joueurs à remporté la victoire
-  test_victory() {
-    // Test horizontal
-    for (var i = 0; i < 4; i++) {
-      for (var j = 0; j < 6; j++) {
-        if (
-          this.test_line(
-            this.connect_4[i][j],
-            this.connect_4[i + 1][j],
-            this.connect_4[i + 2][j],
-            this.connect_4[i + 3][j]
-          )
-        ) {
-          console.log("horizontal victory, row : ", j);
-          return true;
-        }
-      }
-    }
-    // Test vertical
-    for (var i = 0; i < 7; i++) {
-      for (var j = 0; j < 3; j++) {
-        if (
-          this.test_line(
-            this.connect_4[i][j],
-            this.connect_4[i][j + 1],
-            this.connect_4[i][j + 2],
-            this.connect_4[i][j + 3]
-          )
-        ) {
-          console.log("vertical victory, column : ", i);
-          return true;
-        }
-      }
-    }
-    // Test Diagonal gauche vers le haut
-    for (var i = 0; i < 4; i++) {
-      for (var j = 0; j < 3; j++) {
-        if (
-          this.test_line(
-            this.connect_4[i][j],
-            this.connect_4[i + 1][j + 1],
-            this.connect_4[i + 2][j + 2],
-            this.connect_4[i + 3][j + 3]
-          )
-        ) {
-          console.log("diag gauche haut victory");
-          return true;
-        }
-      }
-    }
-    // Test Diagonal Droite vers le haut
-    for (var i = 3; i < 7; i++) {
-      for (var j = 0; j < 3; j++) {
-        if (
-          this.test_line(
-            this.connect_4[i][j],
-            this.connect_4[i - 1][j + 1],
-            this.connect_4[i - 2][j + 2],
-            this.connect_4[i - 3][j + 3]
-          )
-        ) {
-          console.log("diag droite haut victory");
-          return true;
-        }
-      }
-    }
-    return false;
-  }
-
-  // Test si la grille est complète
-  test_grid_complete() {
-    // console.log("test_grid_complete");
-    var nothing_checker = false;
-    this.connect_4.forEach((element) => {
-      element.forEach((checker) => {
-        if (checker == "nothing") {
-          nothing_checker = true;
-        }
-      });
-    });
-    if (nothing_checker) {
-      return false;
-    }
-    return true;
-  }
-
-  // Test de fin de partie
-  test_end_game() {
-    if (this.test_victory()) {
-      this.victorious_player = this.player_turn;
-      this.finished = true;
-      console.log("FIN DE PARTIE - AVEC GAGNANT");
-      return true;
-    }
-    if (this.test_grid_complete()) {
-      this.finished = true;
-      this.victorious_player = "none";
-      console.log("FIN DE PARTIE - PAS DE GAGNANT");
-      return true;
-    }
-    return false;
-  }
-
-  // Ajout d'un Checker dans une list
-  add_checker(column_number) {
-    for (var i = 0; i < 6; i++) {
-      if (this.connect_4[column_number][i] == "nothing") {
-        this.connect_4[column_number][i] = this.player_turn;
-        const displayedCell = getFirstOpenCellForColumn(column_number);
-        displayedCell.classList.add(this.player_turn);
-        displayedCell.classList.remove("nothing");
-        // break;
-        return true;
-      }
-    }
-    return false;
-  }
-
-  // Sélectionne aléatoirement une des 7 colonne
-  choose_random_column() {
-    return Math.floor(Math.random() * 7);
-  }
-
-  // Afficher le puissance 4
-  diplay_connect_4() {
-    console.log("display");
-    let chercker_number = 0;
-    for (let i = 0; i < 7; i++) {
-      for (let j = 0; j < 6; j++) {
-        chercker_number++;
-        console.log(this.connect_4[i][j]);
-      }
-    }
-    // console.log("chercker_number : ", chercker_number);
-  }
-
-}
->>>>>>> 1af5371043663127e9349337551d184e9e9767a1
 function resetBoard() {
   allCells.forEach((cell) => {
     cell.classList.add("nothing");
@@ -269,64 +94,129 @@ function resetBoard() {
   });
 }
 
+// var agent_sensor = new Sensor();
+
+var game = new Environment();
+let learning_agent_color = "red";
+let learningAgent = new LearningAgent(learning_agent_color);
+
 function launch_game() {
-  resetBoard();
-  console.log("NEW GAME")
-  let game = new Environment();
+    resetBoard();
+    // let game = new Environment();
 
-  game.diplay_connect_4();
+    // let learning_agent_color = "red";
+    // let learningAgent = new LearningAgent(learning_agent_color);
+    let learning_agent_reward = 0;
 
-  let miniMaxAgent1 = new ExplorationAgent("red")
-  let miniMaxAgent2 = new ExplorationAgent("yellow")
+    // game.diplay_connect_4();
+  let miniMaxAgent1 = new ExplorationAgent("red");
+  let miniMaxAgent2 = new ExplorationAgent("yellow");
 
-  let iteration_number = 0;
-  let checker_added = false;
+    let iteration_number = 0;
+    let checker_added = false;
 
-  while (game.finished == false) {
-    iteration_number++;
+    var column;
 
-    console.log("iteration_number : ", iteration_number);
-    // Une itération de jeu
-<<<<<<< HEAD
-    while (checker_added == false) {
-      var col = game.choose_random_column();
-      var renderedCell = getFirstOpenCellForColumn(col);
-      checker_added = game.add_checker(col, renderedCell);
-      console.log("checker_added : ", checker_added);
-=======
-    if (game.player_turn == "red" ) {
-        while (checker_added == false) {
-            miniMaxAgent1.UpdateBeliefs(game.connect_4);
-            checker_added = game.add_checker(miniMaxAgent1.Minimax_Decision(3));
-            console.log("red?", miniMaxAgent1.color)
+    var player_round = "yellow";
+
+    var number_victory_red = 0;
+    var number_victory_yellow = 0;
+    var number_without_victory = 0;
+
+    var yellow_win_after_train =0;
+    var red_win_after_train =0; 
+    var total_games = 100;
+    var victory_list = [];
+
+    console.log("beginning of the training");
+    for(let game_number = 0 ; game_number<total_games ;game_number++ ){
+        iteration_number = 0;
+        game.Reset_grid();
+
+        console.log("START");
+        while (game.finished == false) {
+            iteration_number++;
+            // Random agent
+            // console.log("game after iterate : ", game.connect_4);
+            while (player_round == "yellow"){
+                var col = game.Choose_random_column();
+                var renderedCell_1 = getFirstOpenCellForColumn(col);
+                checker_added = game.Add_checker(col,renderedCell_1,player_round);
+
+                // 0 -> jeton pas posé
+                // 1 -> jeton posé mais pas vainqueur
+                // 2 -> jeton posé avec vainqueur
+                // 3 -> jeton posé grille plein
+                if(checker_added != 0){
+                    player_round = "red";
+                }
+                // en cas de victoire
+                if(checker_added == 2){
+                    learning_agent_reward = -1000;
+                    number_victory_yellow++;
+                    victory_list.push("yellow");
+                }
+            
+            }
+            checker_added = false;
+
+
+            // Learning agent
+            if(game.finished == false){
+                while (player_round == "red"){
+                    // ----------------------------------------------------------------------------------
+                    // learningAgent
+                    let random_value = Math.random()
+                    // Détermination de l'action en fonction d'epsilon
+                    column = (random_value < learningAgent.epsilon ) ? game.Choose_random_column() : learningAgent.Max_action(Q, observationInt, possibleActions)
+                    // Mise à jour visuelle après avoir joué
+                    var renderedCell = getFirstOpenCellForColumn(column);
+                    // Renvoi une récompense le nouvel état du jeu et si 
+                    checker_added = game.Add_checker(column, renderedCell,player_round);
+
+                    // 0 -> jeton pas posé
+                    // 1 -> jeton posé mais pas vainqueur
+                    // 2 -> jeton posé avec vainqueur
+                    // 3 -> jeton posé grille plein
+                    if(checker_added != 0){
+                        learning_agent_reward = game.Evaluate_move(column);
+                        // console.log("reward : ", learning_agent_reward);
+                        player_round = "yellow";
+
+                    }
+                    // en cas de victoire
+                    if(checker_added == 2){
+                        learning_agent_reward = 1000;
+                        number_victory_red++;
+                        victory_list.push("red");
+                    }
+                }
+            }
+            checker_added = false;
+
+            // Update Beliefs
+            learningAgent.Update_beliefs(game.connect_4);
+
+            // Update Q table
+            learningAgent.Update_Q_value(column,learning_agent_reward);
+        }
+
+        // Modification Epsilon
+        if(game_number >(total_games/1.3)){
+            game.epsilon = 0;
+            if(player_round == "red"){
+                yellow_win_after_train++;
+            }
+            else{
+                red_win_after_train++;
+            }
+        }
+        else{
+            game.epsilon = 1 - game_number/(total_games/1.3)
         }
     }
-
-    else {
-        while (checker_added == false ) {
-            miniMaxAgent2.UpdateBeliefs(game.connect_4);
-            checker_added = game.add_checker(miniMaxAgent2.Minimax_Decision(6));
-            console.log("yello?", miniMaxAgent2.color)
-        }
->>>>>>> 1af5371043663127e9349337551d184e9e9767a1
-    }
-    checker_added = false;
-
-    // Test de fin de partie
-    game.test_end_game();
-    // console.log("iteration_number : ", iteration_number);
-
-    // Changement de joueur si la partie n'est pas finie
-    if (game.finished == false) {
-      if (game.player_turn == "red") {
-        game.player_turn = "yellow";
-      } else {
-        game.player_turn = "red";
-      }
-    }
-  }
-  console.log("finished");
-  console.log("Winner : ", game.victorious_player);
-  console.log("iteration_number : ", iteration_number);
-  console.log("connect_4 : ", game.connect_4);
+console.log("Q table : ", learningAgent.Q_table)
+console.log("number_victory_red : " , number_victory_red, " number_victory_yellow : ", number_victory_yellow);
+console.log("learning_rate : ", learningAgent.learning_rate, "discount_rate : ",learningAgent.discount_rate, "epsilon : ", learningAgent.epsilon )
+console.log("red_win_after_train : ", red_win_after_train, "yellow_win_after_train : ", yellow_win_after_train)
 }
