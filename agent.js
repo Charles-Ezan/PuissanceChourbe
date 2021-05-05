@@ -11,17 +11,17 @@ export class Agent {
 
     // Croyance du joueur
     beliefs = [
-        ["nothing","nothing","nothing","nothing","nothing","nothing"],
-        ["nothing","nothing","nothing","nothing","nothing","nothing"],
-        ["nothing","nothing","nothing","nothing","nothing","nothing"],
-        ["nothing","nothing","nothing","nothing","nothing","nothing"],
-        ["nothing","nothing","nothing","nothing","nothing","nothing"],
-        ["nothing","nothing","nothing","nothing","nothing","nothing"],
-        ["nothing","nothing","nothing","nothing","nothing","nothing"]
+        ["nothing", "nothing", "nothing", "nothing", "nothing", "nothing"],
+        ["nothing", "nothing", "nothing", "nothing", "nothing", "nothing"],
+        ["nothing", "nothing", "nothing", "nothing", "nothing", "nothing"],
+        ["nothing", "nothing", "nothing", "nothing", "nothing", "nothing"],
+        ["nothing", "nothing", "nothing", "nothing", "nothing", "nothing"],
+        ["nothing", "nothing", "nothing", "nothing", "nothing", "nothing"],
+        ["nothing", "nothing", "nothing", "nothing", "nothing", "nothing"]
     ]
 
     // actions disponibles
-    desire = [0,1,2,3,4,5,6]
+    desire = [0, 1, 2, 3, 4, 5, 6]
 
     // addCheckers(color, column) {
     //     this.beliefs[column].push(color)
@@ -31,7 +31,7 @@ export class Agent {
 }
 
 export class LearningAgent extends Agent {
-    
+
 
     Q_table = {}
 
@@ -41,31 +41,35 @@ export class LearningAgent extends Agent {
 
 
     old_beliefs = [
-        ["nothing","nothing","nothing","nothing","nothing","nothing"],
-        ["nothing","nothing","nothing","nothing","nothing","nothing"],
-        ["nothing","nothing","nothing","nothing","nothing","nothing"],
-        ["nothing","nothing","nothing","nothing","nothing","nothing"],
-        ["nothing","nothing","nothing","nothing","nothing","nothing"],
-        ["nothing","nothing","nothing","nothing","nothing","nothing"],
-        ["nothing","nothing","nothing","nothing","nothing","nothing"]
+        ["nothing", "nothing", "nothing", "nothing", "nothing", "nothing"],
+        ["nothing", "nothing", "nothing", "nothing", "nothing", "nothing"],
+        ["nothing", "nothing", "nothing", "nothing", "nothing", "nothing"],
+        ["nothing", "nothing", "nothing", "nothing", "nothing", "nothing"],
+        ["nothing", "nothing", "nothing", "nothing", "nothing", "nothing"],
+        ["nothing", "nothing", "nothing", "nothing", "nothing", "nothing"],
+        ["nothing", "nothing", "nothing", "nothing", "nothing", "nothing"]
     ]
 
     // Mettre à jour espilon
-    Set_epsilon(new_epsilon){
+    Set_epsilon(new_epsilon) {
         this.epsilon = new_epsilon
     }
-    
+
     // Mettre à jour le learning rate
-    Set_learning_rate(new_learning_rate){
+    Set_learning_rate(new_learning_rate) {
         this.learning_rate = new_learning_rate
     }
 
     // Retourne l'action qui a le plus de valeur parmi les actions possibles
-    Max_action(a_state, possible_actions){
+    Max_action(a_state) {
         let q_values = [];
+
+        // On récupère les actions possibles
+        let possible_actions = this.Get_possible_actions(a_state);
+
         // Récupération des Q-values
         possible_actions.forEach(an_action => {
-            q_values.push(this.Get_Q_value(a_state,an_action));
+            q_values.push(this.Get_Q_value(a_state, an_action));
         });
 
         let index = q_values.indexOf(Math.max.apply(null, q_values));
@@ -74,11 +78,11 @@ export class LearningAgent extends Agent {
 
 
     // Retourne la liste des actions possibles par rapport à l'état
-    Get_possible_actions(connect_4_state){
+    Get_possible_actions(connect_4_state) {
         let possible_actions = [];
 
-        for(let i=0 ; i<connect_4_state.length; i++){
-            if(connect_4_state[i][5] == "nothing"){
+        for (let i = 0; i < connect_4_state.length; i++) {
+            if (connect_4_state[i][5] == "nothing") {
                 possible_actions.push(i);
             }
         }
@@ -90,33 +94,32 @@ export class LearningAgent extends Agent {
     // https://stackoverflow.com/questions/14782232/how-to-avoid-cannot-read-property-of-undefined-errors
     getSafe(fn, defaultVal) {
         try {
-          return fn();
+            return fn();
         } catch (e) {
-          return defaultVal;
+            return defaultVal;
         }
-      }
-      
+    }
+
     // Permet de récupérer une Q_value à partir d'un état et d'une action
-    Get_Q_value(a_state, an_action){
+    Get_Q_value(a_state, an_action) {
 
         let the_state = JSON.stringify(a_state);
 
-        if(this.getSafe(() => this.Q_table[the_state][an_action])){
+        if (this.getSafe(() => this.Q_table[the_state][an_action])) {
             // console.log("Existe");
             return this.Q_table[the_state][an_action];
-        }
-        else {
+        } else {
             // Si l'état n'existe pas alors on l'ajoute à la table avec des valeurs de 1
             // console.log("N'existe pas");
-            this.Q_table[the_state] = {0: 0.0, 1: 0.0, 2: 0.0, 3: 0.0, 4: 0.0, 5: 0.0, 6: 0.0}
+            this.Q_table[the_state] = { 0: 0.0, 1: 0.0, 2: 0.0, 3: 0.0, 4: 0.0, 5: 0.0, 6: 0.0 }
         }
         return this.Q_table[the_state][an_action];
     }
 
     // // Mettre à jour les beliefs
-    Update_beliefs(a_connect_4){
-        for(let i=0 ; i<a_connect_4.length ; i++){
-            for(let j=0 ; j<a_connect_4[i].length ; j++ ){
+    Update_beliefs(a_connect_4) {
+        for (let i = 0; i < a_connect_4.length; i++) {
+            for (let j = 0; j < a_connect_4[i].length; j++) {
                 this.beliefs[i][j] = a_connect_4[i][j];
             }
         }
@@ -133,43 +136,45 @@ export class LearningAgent extends Agent {
     // }
 
     // Sauvegarde des beliefs
-    Update_old_beliefs(){
-        for(let i=0 ; i<this.beliefs.length ; i++){
-            for(let j=0 ; j<this.beliefs[i].length ; j++ ){
+    Update_old_beliefs() {
+        for (let i = 0; i < this.beliefs.length; i++) {
+            for (let j = 0; j < this.beliefs[i].length; j++) {
                 this.old_beliefs[i][j] = this.beliefs[i][j];
             }
         }
     }
 
     // Mise à jour de la Q-table à l'aide de l'équation de Bellman
-    Update_Q_value(an_action, a_reward){
+    Update_Q_value(an_action, a_reward) {
 
         // Actions disponibles dans cette nouvelle grille
-        let actions_after = this.Get_possible_actions(this.beliefs);
+        // let actions_after = this.Get_possible_actions(this.beliefs);
 
         // Meilleur actions à ce nouvel état
-        let best_action_after = this.Max_action(this.beliefs, actions_after);
+        // let best_action_after = this.Max_action(this.beliefs, actions_after);
+        let best_action_after = this.Max_action(this.beliefs);
+
 
         // Etat
-        let max_q_next = this.Get_Q_value(this.beliefs,best_action_after);
+        let max_q_next = this.Get_Q_value(this.beliefs, best_action_after);
 
         // Etat avant l'action
-        let q_before_action = this.Get_Q_value(this.old_beliefs,an_action);
+        let q_before_action = this.Get_Q_value(this.old_beliefs, an_action);
 
         // Etat dans lequel nous sommes
         let q_state = JSON.stringify(this.old_beliefs);
 
-                // this.Q[(this.old_beliefs,an_action)] = q_before_action + this.learning_rate * (a_reward + this.discount_rate *max_q_next - q_before_action);
-        
+        // this.Q[(this.old_beliefs,an_action)] = q_before_action + this.learning_rate * (a_reward + this.discount_rate *max_q_next - q_before_action);
+
         // Equation de Bellman 
-        this.Q_table[q_state][an_action] = q_before_action + this.learning_rate * (a_reward + this.discount_rate *max_q_next - q_before_action);
+        this.Q_table[q_state][an_action] = q_before_action + this.learning_rate * (a_reward + this.discount_rate * max_q_next - q_before_action);
 
         this.Update_old_beliefs();
     }
 
     // Comparaison 2 deux grilles
-    Compare_lists(list_1, list_2){
-        if(JSON.stringify(list_1)==JSON.stringify(list_2)){
+    Compare_lists(list_1, list_2) {
+        if (JSON.stringify(list_1) == JSON.stringify(list_2)) {
             return true;
         }
         return false;
@@ -191,10 +196,8 @@ export class ExplorationAgent extends Agent {
         let column = 0
 
         if (depth <= 0) {
-            return {score: this.Utility(grid, this.color)}
-        }
-
-        else {
+            return { score: this.Utility(grid, this.color) }
+        } else {
             var score = -1000
             let grids = this.Successors(grid, this.color)
 
@@ -208,7 +211,7 @@ export class ExplorationAgent extends Agent {
                 }
             })
         }
-        return {score: score, column: column}
+        return { score: score, column: column }
     }
 
     Min_Value(grid, depth) {
@@ -216,8 +219,7 @@ export class ExplorationAgent extends Agent {
 
         if (depth <= 0) {
             return this.Utility(grid, this.color)
-        }
-        else {
+        } else {
             var score = 1000
             let grids = this.Successors(grid, this.OpponentColor(this.color))
 
@@ -231,7 +233,7 @@ export class ExplorationAgent extends Agent {
     //Renvoi les grilles possibles au prochain coup
     Successors(grid, color) {
         let grids = []
-        for (let column = 0; column < grid.length; column++) {            
+        for (let column = 0; column < grid.length; column++) {
             let tempGrid = this.NewGrid(grid)
             for (let index = 0; index < grid[column].length; index++) {
                 if (tempGrid[column][index] == "nothing") {
@@ -239,8 +241,8 @@ export class ExplorationAgent extends Agent {
                     index = grid[column][index]
                 }
             }
-        grids.push(tempGrid)
-        }  
+            grids.push(tempGrid)
+        }
         return grids
     }
 
