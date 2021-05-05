@@ -16,26 +16,6 @@ export class Agent {
         ["nothing","nothing","nothing","nothing","nothing","nothing"],
         ["nothing","nothing","nothing","nothing","nothing","nothing"]
     ]
-
-    emptyGrid = [
-        ["nothing","nothing","nothing","nothing","nothing","nothing"],
-        ["nothing","nothing","nothing","nothing","nothing","nothing"],
-        ["nothing","nothing","nothing","nothing","nothing","nothing"],
-        ["nothing","nothing","nothing","nothing","nothing","nothing"],
-        ["nothing","nothing","nothing","nothing","nothing","nothing"],
-        ["nothing","nothing","nothing","nothing","nothing","nothing"],
-        ["nothing","nothing","nothing","nothing","nothing","nothing"]
-    ]
-
-    testGrid = [
-        ["nothing","nothing","nothing","nothing","nothing","nothing"],
-        ["nothing","nothing","nothing","nothing","nothing","nothing"],
-        ["yellow","yellow","yellow","yellow","nothing","nothing"],
-        ["nothing","nothing","nothing","nothing","nothing","nothing"],
-        ["nothing","nothing","nothing","nothing","nothing","nothing"],
-        ["nothing","nothing","nothing","nothing","nothing","nothing"],
-        ["nothing","nothing","nothing","nothing","nothing","nothing"]
-    ]
 }
 
 export class LearningAgent extends Agent {
@@ -44,96 +24,81 @@ export class LearningAgent extends Agent {
 
 export class ExplorationAgent extends Agent {
 
-    Minimax_Decision(depth) {
-        depth--
-        console.log("NBBBBBBBBBBBBB AU DEBUT:", this.NombreCheckersDansGrille(this.beliefs))
-        // let score = this.Max_Value(this.beliefs, depth).score
-        let columnAction = this.Max_Value(this.beliefs, depth).column
-        // if(this.beliefs[columnAction][5] !== "nothing"){
-        //     columnAction = 4
-        // }
-        console.log("next action from ", this.color, ": ", columnAction)
-        return columnAction
-    }
+    Minimax(grid, depth, AITurn, alpha, beta) {
 
-    Max_Value(grid, depth) {
-        depth--
-        let column
-        let previousScore = -1000
+        let possibilities = this.ColumnPossibilities(grid)
+        let finalGrid = this.TerminalTest(grid)
 
-        if (depth == 0) {
-            // console.log("AAAAAAAAAXXXXXXX", this.NombreCheckersDansGrille(grid))
-            return {score: this.Utility(grid, this.color)}
-        }
+        if (depth == 0 || finalGrid) {
+            if (finalGrid) {
+                if (this.WinningTest(grid, this.color)) {
+                    return {column: null, score: 100000}
+                } 
 
-        else {
-            var score = -10000000
-            let grids = this.Successors(grid, this.color)
-
-            grids.forEach((grid, index) => {
-                // console.log("indexxxxxxxxxxxx", index)
-                score = Math.max(score, this.Min_Value(grid, depth))
-                if (previousScore < score) {
-                    column = index
-                    previousScore = score
+                else if (this.WinningTest(grid, this.OpponentColor(this.color))) {
+                    return {column: null, score: -100000}
                 }
-            })
+                
+                else {
+                    return {column: null, score: 0}
+                }
+            }
+
+            else {
+                return {column: null, score: this.Utility(grid, this.color)}
+            }
         }
-        return {score: score, column: column}
-    }
 
-    Min_Value(grid, depth) {
-        depth--
+        if (AITurn) {
+            let score = -10000
+            let column = possibilities[Math.floor((Math.random()*possibilities.length))]
 
-        if (depth <= 0) {
-            // if(Math.random()<0.001){
-            // // console.log("THE GRIDSSSSSSSS", grids)
-            // console.log("THE PREVIOUS GRIDDDDDDDDDDDDDD", grid, "\nvalue =", this.Utility(grid, this.color) )
-            // }
-            // console.log("value =", this.Utility(grid, this.color) )
-            return this.Utility(grid, this.color)
+            for (const tempColumn in possibilities) {
+                let temptempColumn = parseInt(tempColumn)
+                let checker = this.EmptyRow(grid, temptempColumn)       
+                let tempGrid = this.NewGrid(grid)
+                tempGrid = this.AddCheckerToColumn(tempGrid, temptempColumn, checker, this.color) 
+                let tempResult = this.Minimax(tempGrid, depth-1, false, alpha, beta)
+                let tempScore = tempResult.score
+                
+                if (tempScore > score) {
+                    score = tempScore
+                    column = temptempColumn
+                }
+                alpha = Math.max(alpha, score)
+                if (alpha >= beta) {
+                    break
+                }
+            return {column: column, score: score}
+            }
         }
 
         else {
-            var score = 10000000
-            let grids = this.Successors(grid, this.color)
-
-            grids.forEach(grid => {
-                score = Math.min(score, this.Max_Value(grid, depth).score)
-            })
+            let score = 10000
+            let column = possibilities[Math.floor((Math.random()*possibilities.length))]
+            for (const tempColumn in possibilities) {
+                let temptempColumn = parseInt(tempColumn)
+                let checker = this.EmptyRow(grid, temptempColumn)    
+                let tempGrid = this.NewGrid(grid)
+                tempGrid = this.AddCheckerToColumn(tempGrid, temptempColumn, checker, this.OpponentColor(this.color))
+                let tempResult = this.Minimax(tempGrid, depth-1, false, alpha, beta)
+                let tempScore = tempResult.score
+                if (tempScore < score) {
+                    score = tempScore
+                    column = temptempColumn
+                }
+                beta = Math.min(beta, score)
+                if (alpha >= beta) {
+                    break
+                }
+            }
+            return {column: column, score: score}
         }
-        return score
     }
 
-    //Renvoi les grilles possibles au prochain coup
-    Successors(grid, color) {
-        let grids = []
-        for (let column = 0; column < grid.length; column++) {            
-            let tempGrid = this.NewGrid(grid)
-            tempGrid[column] = this.AddCheckerToColumn(tempGrid[column], color)
-            grids.push(tempGrid)
-            }
-
-        
-        // if(Math.random()<0.001){
-        //     console.log("THE GRIDSSSSSSSS", grids)
-        //     console.log("THE PREVIOUS GRIDDDDDDDDDDDDDD", grid, "\nvalue =", this.Utility(grid, this.color) )
-        // }
-        return grids
-    }
-
-    AddCheckerToColumn(column, color) {
-        if (column[5] != "nothing") {
-            return column
-        }
-        else {
-            for (let index = 0; index < column.length; index++) {
-                if(column[index] == "nothing") {
-                    column[index] = color
-                    return column
-                }        
-            }
-        }
+    AddCheckerToColumn(grid, column, row, AIColor) {
+        grid[column][row] = AIColor
+        return grid
     }
 
     NewGrid(grid) {
@@ -165,16 +130,20 @@ export class ExplorationAgent extends Agent {
         let score = 0
         let opponentColor = this.OpponentColor(this.color)
 
+        if (color == opponentColor) {
+            opponentColor = color
+        }
+
         // Checkers de l'agent sur la colonne du milieu
         for (let checker = 0; checker < 6; checker++) {
             if (grid[3][checker] == color) {
                 if (color == this.color) {
-                    score = score + 100 + Math.random()*30
+                    score = score + 100
                 }
             }
         }
 
-        //Recherche alignement de 2, 3 ou 4 checkers
+        // Recherche alignement de 2, 3 ou 4 checkers
         for (let column = 0; column < grid.length; column++) {
             for (let row = 0; row < grid[column].length; row++) {
 
@@ -203,11 +172,11 @@ export class ExplorationAgent extends Agent {
                 if(column < 5) {
                     if (this.test_alignement(color, grid[column][row], grid[column+1][row], grid[column+2][row])) {
                         if (color == this.color) {
-                            score = score + 30 + Math.random()*30
+                            score = score + 30
                         }
                         if (this.test_alignement(opponentColor, grid[column][row], grid[column+1][row], grid[column+2][row])) {
                             if (color == opponentColor) {
-                                score = score - 30 - Math.random()*30
+                                score = score - 30
                             }
                         }
                     }
@@ -232,11 +201,10 @@ export class ExplorationAgent extends Agent {
                     //Alignement de 3
                 if(row < 4) {
                     if (this.test_alignement(color, grid[column][row], grid[column][row+1], grid[column][row+2])) {
-                            score = score + 30 + Math.random()*30
+                            score = score + 30
                     }
                     if (this.test_alignement(opponentColor, grid[column][row], grid[column][row+1], grid[column][row+2])) {
-                            score = score - 30 - Math.random()*30
-                            console.log("yoooooooooooOOOOOOOOOOOOOOOOOOOOO")
+                            score = score - 30
                     }
                 }
 
@@ -262,12 +230,12 @@ export class ExplorationAgent extends Agent {
                     if (row < 5) {
                         if (this.test_alignement(color, grid[column][row], grid[column-1][row+1], grid[column-2][row+2])) {
                             if (color == this.color) {
-                                score = score + 30 + Math.random()*30
+                                score = score + 30
                             }
                         }
                         if (this.test_alignement(opponentColor, grid[column][row], grid[column-1][row+1], grid[column-2][row+2])) {
                             if (color == opponentColor) {
-                                score = score - 30 - Math.random()*30
+                                score = score - 30
                             }
                         }
                     }
@@ -300,7 +268,7 @@ export class ExplorationAgent extends Agent {
         return opponentColor
     }
 
-    NombreCheckersDansGrille(grid) {
+    NbCheckersInGrid(grid) {
         let nbCheckers = 0
         for (let column = 0; column < 6; column++) {
             for (let row = 0; row < 5; row++) {
@@ -312,11 +280,85 @@ export class ExplorationAgent extends Agent {
         return nbCheckers
     }
 
-    // test() {
-    //     let t0= performance.now(); //start time
-    //     let scoreUti = this.Utility(this.testGrid, "yellow")
-    //     console.log("scoreAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", scoreUti)
-    //     let t1= performance.now(); //end time
-    //     console.log('Time taken to execute add function: '+ (t1-t0) +' milliseconds');
-    // }
+    ColumnPossibilities(grid) {
+        let possibilities = []
+        for (let column = 0; column < 7; column++) {
+            if (grid[column][5] == "nothing") {
+                possibilities.push(column)
+            }
+        }
+        return possibilities
+    }
+
+    TerminalTest(grid) {
+        return (this.ColumnPossibilities(grid) == [] || this.WinningTest(grid, this.color) || this.WinningTest(grid, this.OpponentColor(this.color)))
+    }
+
+    EmptyRow(grid, column) {
+        for (let row = 0; row < 6; row++) {
+            if (grid[column][row] == "nothing") {
+                return row
+            }
+        }
+    }
+
+    WinningTest(grid, color) {
+        for (var i = 0; i < 7; i++) {
+          for (let j = 0; j < 6; j++) {
+            //victoire verticale
+            if (j<4) {
+                if (
+                this.test_alignement(color,
+                    grid[i][j],
+                    grid[i][j + 1],
+                    grid[i][j + 2],
+                    grid[i][j + 3]
+                )
+                ) {
+                return true;
+                }
+            }
+            //victoire horizontale
+            if (i<3) {
+            if (
+                this.test_alignement(color,
+                    grid[i][j],
+                    grid[i + 1][j],
+                    grid[i + 2][j],
+                    grid[i + 3][j]
+                )
+                ) {
+                return true;
+                }
+            }
+            //victoire
+            if (j<4 && i<3) {
+                if (
+                this.test_alignement(color,
+                    grid[i][j],
+                    grid[i + 1][j + 1],
+                    grid[i + 2][j + 2],
+                    grid[i + 3][j + 3]
+                )
+                ) {
+                return true;
+                }
+            }
+            //victoire
+            if (i>2 && j<4) {
+                if (
+                this.test_alignement(color,
+                    grid[i][j],
+                    grid[i - 1][j + 1],
+                    grid[i - 2][j + 2],
+                    grid[i - 3][j + 3]
+                )
+                ) {
+                return true;
+                }
+            }
+            return false;
+          }
+        }
+    }
 }

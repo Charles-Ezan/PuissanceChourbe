@@ -73,11 +73,10 @@ const getClassListArray = (cell) => {
 
 const getFirstOpenCellForColumn = (colIndex) => {
   const column = columns[colIndex];
-  const columnWithoutTop = column.slice(0, 6);
 
-  for (const cell of columnWithoutTop) {
+  for (const cell of column) {
     const classList = getClassListArray(cell);
-    if (!classList.includes("yellow") && !classList.includes("red")) {
+    if (classList.includes("nothing")) {
       return cell;
     }
   }
@@ -114,21 +113,20 @@ function launch_game() {
     while (checker_added == false) {
       if (game.player_turn == "red") {
         var col = game.choose_random_column();
-        miniMaxAgent1.UpdateBeliefs(game.connect_4);
         checker_added = game.add_checker(col, getFirstOpenCellForColumn(col));
-        // console.log("red?", miniMaxAgent1.color);
       } else {
-        var col = miniMaxAgent2.Minimax_Decision(6);
-        miniMaxAgent2.UpdateBeliefs(game.connect_4);
-        checker_added = game.add_checker(col, getFirstOpenCellForColumn(col));
-        // console.log("yello?", miniMaxAgent2.color);
+        let alpha = -10000000000
+        let beta = 10000000000
+        let minimaxresults = miniMaxAgent2.Minimax(game.connect_4, 5, false, alpha, beta)
+        let col2 = minimaxresults.column
+        let score2 = minimaxresults.score
+        checker_added = game.add_checker(col2, getFirstOpenCellForColumn(col2));
       }
     }
     checker_added = false;
 
     // Test de fin de partie
     game.test_end_game();
-    // console.log("iteration_number : ", iteration_number);
 
     // Changement de joueur si la partie n'est pas finie
     if (game.finished == false) {
