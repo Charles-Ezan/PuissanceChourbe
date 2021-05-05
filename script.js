@@ -2,6 +2,8 @@ import { LearningAgent,ExplorationAgent, Agent } from "./agent.js";
 // import { Sensor } from "./sensor";
 import Environment from "./environment.js";
 // const Environment = require("./environment");
+import { Agent, LearningAgent, ExplorationAgent } from "./agent.js";
+
 // DOM Elements
 const allCells = document.querySelectorAll(".cell");
 document.getElementById("start").onclick = launch_game;
@@ -108,6 +110,11 @@ function launch_game() {
     let learning_agent_reward = 0;
 
     // game.diplay_connect_4();
+  let miniMaxAgent1 = new ExplorationAgent("red");
+  let miniMaxAgent2 = new ExplorationAgent("yellow");
+
+  let iteration_number = 0;
+  let checker_added = false;
 
     let iteration_number = 0;
     let checker_added = false;

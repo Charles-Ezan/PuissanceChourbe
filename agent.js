@@ -178,86 +178,70 @@ export class LearningAgent extends Agent {
 
 export class ExplorationAgent extends Agent {
 
-
     Minimax_Decision(depth) {
-        // console.log(depth)
         depth--
-        let column = this.Max_Value(this.beliefs, depth)
-        // console.log(column)
-        // return column
+        let score = this.Max_Value(this.beliefs, depth).score
+        let columnAction = this.Max_Value(this.beliefs, depth).column
+        console.log("next action from ", this.color, ": ", columnAction, "\nscore:", score)
+        return columnAction
     }
 
     Max_Value(grid, depth) {
-        // console.log("MAX function", grid)
-        // console.log("MAX depth", depth)
+        depth--
+        let column = 0
 
         if (depth <= 0) {
-            // console.log("the end max")
-            return 0
+            return {score: this.Utility(grid, this.color)}
         }
+
         else {
-            // console.log("aprés", depth)
-        // console.log(this.compteur)
-
             var score = -1000
+            let grids = this.Successors(grid, this.color)
 
-            // console.log("max", grid)
-
-            for (let action = 0; action < grid.length; action++) {
-                // console.log(action)
-
-
-                let tempGrid = this.Successors(this.NewGrid(grid), action)
-                // if (action == (3)) {
-                //     console.log("stack", tempGrid)
-                // }
-                depth--
-                score = Math.max(score, this.Min_Value(tempGrid, depth))
-            }
-            return score
+            grids.forEach((grid, index) => {
+                let previousScore = score
+                if (grid[index][5] == "nothing") {
+                    score = Math.max(score, this.Min_Value(grid, depth))
+                    if (previousScore < score) {
+                        column = index
+                    }
+                }
+            })
         }
+        return {score: score, column: column}
     }
 
     Min_Value(grid, depth) {
-        // console.log("MIN function", grid)
-        // console.log("MIN depth", depth)
-        if (this.depth <= 0) {
-            return 0
+        depth--
+
+        if (depth <= 0) {
+            return this.Utility(grid, this.color)
         }
         else {
             var score = 1000
+            let grids = this.Successors(grid, this.OpponentColor(this.color))
 
-            // console.log("min", grid)
-
-            for (let action = 0; action < grid.length; action++) {
-
-                let tempGrid = this.Successors(this.NewGrid(grid), action)
-                if (action == (3)) {
-                    // console.log(tempGrid)
-                }
-                depth--
-                score = Math.min(score, this.Max_Value(tempGrid, depth))
-            }
-            return score
+            grids.forEach(grid => {
+                score = Math.min(score, this.Max_Value(grid, depth).score)
+            })
         }
+        return score
     }
 
-    //Renvoi une grille avec un checker supplementaire sur la colonne precisee
-    Successors(grid, actionColumn) {
-        // console.log("Successors()")
-        // console.log(grid)
-        let tempGrid = grid
-        for (let index = 0; index < tempGrid[actionColumn].length; index++) {
-            if (tempGrid[actionColumn][index] == "nothing") {
-                tempGrid[actionColumn][index] = this.color
-                // console.log(index)
-                return tempGrid
+    //Renvoi les grilles possibles au prochain coup
+    Successors(grid, color) {
+        let grids = []
+        for (let column = 0; column < grid.length; column++) {            
+            let tempGrid = this.NewGrid(grid)
+            for (let index = 0; index < grid[column].length; index++) {
+                if (tempGrid[column][index] == "nothing") {
+                    tempGrid[column][index] = color
+                    index = grid[column][index]
+                }
             }
-            else { 
-                // console.log(index)
-                return tempGrid
-            }
-        }
+        grids.push(tempGrid)
+        }  
+        return grids
     }
 
     NewGrid(grid) {
