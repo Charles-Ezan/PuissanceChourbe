@@ -73,11 +73,10 @@ const getClassListArray = (cell) => {
 
 const getFirstOpenCellForColumn = (colIndex) => {
   const column = columns[colIndex];
-  const columnWithoutTop = column.slice(0, 6);
 
-  for (const cell of columnWithoutTop) {
+  for (const cell of column) {
     const classList = getClassListArray(cell);
-    if (!classList.includes("yellow") && !classList.includes("red")) {
+    if (classList.includes("nothing")) {
       return cell;
     }
   }
@@ -101,7 +100,7 @@ function launch_game() {
   game.diplay_connect_4();
 
   let miniMaxAgent1 = new ExplorationAgent("red");
-  let miniMaxAgent2 = new ExplorationAgent("yellow");
+  // let miniMaxAgent2 = new ExplorationAgent("yellow");
 
   let iteration_number = 0;
   let checker_added = false;
@@ -113,17 +112,22 @@ function launch_game() {
     // Une itération de jeu
     while (checker_added == false) {
       if (game.player_turn == "red") {
-        var col = miniMaxAgent1.Minimax_Decision(3);
-        miniMaxAgent1.UpdateBeliefs(game.connect_4);
+        var col = game.choose_random_column();
+        // miniMaxAgent1.UpdateBeliefs(game.connect_4);
         checker_added = game.add_checker(col, getFirstOpenCellForColumn(col));
-        console.log("red?", miniMaxAgent1.color);
+        // console.log("red?", miniMaxAgent1.color);
+        // miniMaxAgent1.beliefs = game.connect_4;
       } else {
-        var col = miniMaxAgent2.Minimax_Decision(6);
-        miniMaxAgent2.UpdateBeliefs(game.connect_4);
+        var col = miniMaxAgent1.minimax(game.connect_4, 3, true);
+        // console.log("colonne : " + col);
+        // var col = miniMaxAgent2.Minimax_Decision(6);
+        // miniMaxAgent2.UpdateBeliefs(game.connect_4);
         checker_added = game.add_checker(col, getFirstOpenCellForColumn(col));
-        console.log("yello?", miniMaxAgent2.color);
+        // console.log("yello?", miniMaxAgent2.color);
       }
     }
+    miniMaxAgent1.updateBeliefs(game.connect_4);
+    // console.log(JSON.stringify(game.connect_4));
     checker_added = false;
 
     // Test de fin de partie

@@ -47,11 +47,11 @@ h1 {
 }
 
 .cell.red::after {
-    background: rgb(252, 127, 10);
+    background: rgb(255, 0, 0);
 }
 
 .cell.yellow::after {
-    background: rgb(0, 121, 6);
+    background: rgb(255, 255, 0);
 }
 
 .footer {

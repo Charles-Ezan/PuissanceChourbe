@@ -156,13 +156,14 @@ export default class Environment {
   // Afficher le puissance 4
   diplay_connect_4() {
     console.log("display");
-    let chercker_number = 0;
-    for (let i = 0; i < 7; i++) {
-      for (let j = 0; j < 6; j++) {
-        chercker_number++;
-        console.log(this.connect_4[i][j]);
-      }
-    }
+    console.log(JSON.stringify(this.connect_4));
+    // let chercker_number = 0;
+    // for (let i = 0; i < 7; i++) {
+    //   for (let j = 0; j < 6; j++) {
+    //     chercker_number++;
+    //     console.log(this.connect_4[i][j]);
+    //   }
+
     // console.log("chercker_number : ", chercker_number);
   }
 }
