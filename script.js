@@ -2,7 +2,6 @@
 import Environment from "./environment.js";
 // import "./environment.js";
 // const Environment = require("./environment");
-import { Agent, LearningAgent, ExplorationAgent } from "./agent.js";
 
 // DOM Elements
 const allCells = document.querySelectorAll(".cell");
@@ -232,10 +231,14 @@ function train_game() {
         while (game.finished == false) {
             iteration_number++;
             // Random agent
+            // console.log("game after iterate : ", game.connect_4);
             while (player_round == "yellow") {
-                var col = game.Choose_random_column();
-                // var renderedCell_1 = getFirstOpenCellForColumn(col);
-                checker_added = game.Add_checker(col, player_round);
+                let alpha = -10000000000
+                let beta = 10000000000
+                let minimaxresults = miniMaxAgent.Minimax(game.connect_4, 5, false, alpha, beta)
+                let col = minimaxresults.column
+                var renderedCell_1 = getFirstOpenCellForColumn(col);
+                checker_added = game.Add_checker(col, renderedCell_1, player_round);
 
                 // 0 -> jeton pas posé
                 // 1 -> jeton posé mais pas vainqueur
